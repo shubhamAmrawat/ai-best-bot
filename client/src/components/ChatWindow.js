@@ -147,7 +147,7 @@ function ChatWindow({ chatId, setCurrentChatId, isSidebarOpen, user }) {
     let match;
 
     while ((match = codeBlockRegex.exec(content)) !== null) {
-      const [fullMatch, language, code] = match;
+      const [language, code] = match;
       const beforeCode = content.slice(lastIndex, match.index);
       if (beforeCode) {
         parts.push(
@@ -216,10 +216,10 @@ function ChatWindow({ chatId, setCurrentChatId, isSidebarOpen, user }) {
       {/* User Info */}
       <div className="flex justify-end items-center mb-4">
         <div className="flex items-center gap-2">
+          <span className="text-white font-bold text-[22px]">{user.username}</span>
           <div className="w-10 h-10 rounded-full bg-gradient-to-r from-red-500 to-purple-500 flex items-center justify-center text-white font-bold text-xl">
             {avatarLetter}
           </div>
-          <span className="text-white font-bold">{user.username}</span>
         </div>
       </div>
 

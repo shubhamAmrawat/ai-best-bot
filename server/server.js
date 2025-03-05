@@ -43,6 +43,7 @@ const authRoutes = require('./routes/auth');
 app.use('/api/chat', chatRoutes);
 app.use('/api/auth', authRoutes);
 
+
 // Socket.io with authentication
 io.use((socket, next) => {
   const token = socket.handshake.auth.token;
