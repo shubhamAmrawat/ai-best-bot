@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 import axios from "axios";
-import { Rocket } from "lucide-react";
+import { Rocket, Globe } from "lucide-react";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { CopyToClipboard } from "react-copy-to-clipboard";
+import "./ComponentStyles.css";
 
 // Initialize socket with authentication
 const socket = io("http://localhost:5000", {
@@ -18,13 +19,16 @@ function ChatWindow({ chatId, setCurrentChatId, isSidebarOpen, user }) {
   const [input, setInput] = useState("");
   const [isNewChat, setIsNewChat] = useState(false);
   const [copied, setCopied] = useState(false);
-  const messagesContainerRef = useRef(null); // Ref for the messages container
+  const [isLoading, setIsLoading] = useState(false);
+  const [isInternetSearchMode, setIsInternetSearchMode] = useState(false);
+  const messagesContainerRef = useRef(null);
 
   const avatarLetter = user.username.charAt(0).toUpperCase();
 
   // Fetch chat history
   useEffect(() => {
-    const fetchChatHistory = async (chatId) => {
+    const fetchChatHistory = async () => {
+      if (!chatId || isNewChat) return;
       try {
         const res = await axios.get(
           `http://localhost:5000/api/chat/${chatId}`,
@@ -32,17 +36,32 @@ function ChatWindow({ chatId, setCurrentChatId, isSidebarOpen, user }) {
             headers: { Authorization: `Bearer ${user.token}` },
           }
         );
-        setMessages(res.data.messages);
+        setMessages(res.data.messages || []);
         console.log("Loaded chat history:", res.data.messages);
       } catch (error) {
         console.error("Fetch chat history error:", error.message);
       }
     };
-
-    if (chatId && !isNewChat) {
-      fetchChatHistory(chatId);
-    }
+    fetchChatHistory();
   }, [chatId, isNewChat, user.token]);
+
+  useEffect(() => {
+    if (messages.some((msg) => msg.role === "internet")) {
+      const links = document.querySelectorAll(
+        ".internet-response a.result-link"
+      );
+      links.forEach((link) => {
+        link.addEventListener("click", (e) => {
+          e.preventDefault();
+          window.open(link.href, "_blank", "noopener,noreferrer");
+        });
+      });
+
+      return () => {
+        links.forEach((link) => link.removeEventListener("click", () => {}));
+      };
+    }
+  }, [messages]);
 
   // Socket event listeners
   useEffect(() => {
@@ -66,23 +85,62 @@ function ChatWindow({ chatId, setCurrentChatId, isSidebarOpen, user }) {
           console.log("Updated messages:", newMessages);
           return newMessages;
         });
+      }
+    };
+    const handleInternetSearchResponse = ({
+      chatId: responseChatId,
+      content,
+    }) => {
+      console.log("Received internet search response:", {
+        responseChatId,
+        content,
+      });
+      if (responseChatId === chatId) {
+        setMessages((prev) => {
+          const newMessages = [...prev];
+          if (
+            newMessages.length > 0 &&
+            newMessages[newMessages.length - 1].role === "internet"
+          ) {
+            newMessages[newMessages.length - 1] = {
+              role: "internet",
+              content,
+            };
+          } else {
+            newMessages.push({ role: "internet", content });
+          }
+          console.log("Updated messages:", newMessages);
+          return newMessages;
+        });
+      }
+    };
+    const handleEnd = ({ chatId: endChatId }) => {
+      if (endChatId === chatId) {
+        setIsLoading(false);
         if (isNewChat) setIsNewChat(false);
       }
     };
-    const handleError = (error) => console.error("Socket error:", error);
+    const handleError = (error) => {
+      console.error("Socket error:", error);
+      setIsLoading(false);
+    };
 
     socket.on("connect", handleConnect);
     socket.on("response", handleResponse);
+    socket.on("internet-search-response", handleInternetSearchResponse);
+    socket.on("end", handleEnd);
     socket.on("error", handleError);
 
     return () => {
       socket.off("connect", handleConnect);
       socket.off("response", handleResponse);
+      socket.off("internet-search-response", handleInternetSearchResponse);
+      socket.off("end", handleEnd);
       socket.off("error", handleError);
     };
   }, [chatId, isNewChat]);
 
-  // Scroll to bottom when messages change or chat loads
+  // Scroll to bottom when messages change
   useEffect(() => {
     if (messagesContainerRef.current) {
       messagesContainerRef.current.scrollTo({
@@ -93,8 +151,9 @@ function ChatWindow({ chatId, setCurrentChatId, isSidebarOpen, user }) {
   }, [messages]);
 
   const sendMessage = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || isLoading) return;
 
+    setIsLoading(true);
     let activeChatId = chatId;
 
     if (!activeChatId) {
@@ -102,44 +161,59 @@ function ChatWindow({ chatId, setCurrentChatId, isSidebarOpen, user }) {
         const res = await axios.post(
           "http://localhost:5000/api/chat/new",
           {},
-          {
-            headers: { Authorization: `Bearer ${user.token}` },
-          }
+          { headers: { Authorization: `Bearer ${user.token}` } }
         );
         activeChatId = res.data._id;
         setCurrentChatId(activeChatId);
         setIsNewChat(true);
         console.log("New chat created:", activeChatId);
-
-        const userMessage = { role: "user", content: input };
-        setMessages([userMessage, { role: "assistant", content: "" }]);
       } catch (error) {
         console.error("Error creating new chat:", error.message);
+        setIsLoading(false);
         return;
       }
-    } else {
-      const userMessage = { role: "user", content: input };
-      setMessages((prev) => [
-        ...prev,
-        userMessage,
-        { role: "assistant", content: "" },
-      ]);
     }
 
-    socket.emit("message", { chatId: activeChatId, content: input });
+    if (isInternetSearchMode) {
+      socket.emit("internet-search", { chatId: activeChatId, query: input });
+    } else {
+      socket.emit("message", { chatId: activeChatId, content: input });
+    }
+    setMessages((prev) => [
+      ...prev,
+      { role: "user", content: input },
+      { role: isInternetSearchMode ? "internet" : "assistant", content: "" },
+    ]);
     setInput("");
   };
 
-  // Function to render assistant response as formatted HTML (non-code parts)
-  const renderAssistantResponse = (content) => {
-    const html = marked(content, { breaks: true });
-    const sanitizedHtml = DOMPurify.sanitize(html);
-    return { __html: sanitizedHtml };
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter" && !isLoading) {
+      sendMessage();
+    }
   };
 
-  // Extract and render code blocks with syntax highlighting
+  const toggleSearchMode = () => {
+    setIsInternetSearchMode((prev) => !prev);
+  };
+
+  const renderAssistantResponse = (content) => {
+    const html = marked(content, { breaks: true });
+    return { __html: DOMPurify.sanitize(html) };
+  };
+
   const renderMessageContent = (content, role) => {
     if (role === "user") return <span>{content}</span>;
+
+    if (role === "internet") {
+      const cleanHtml = DOMPurify.sanitize(content);
+      return (
+        <div
+          className="internet-response"
+          dangerouslySetInnerHTML={{ __html: cleanHtml }}
+        />
+      );
+    }
 
     const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
     let lastIndex = 0;
@@ -147,20 +221,19 @@ function ChatWindow({ chatId, setCurrentChatId, isSidebarOpen, user }) {
     let match;
 
     while ((match = codeBlockRegex.exec(content)) !== null) {
-      const [language, code] = match;
+      const [fullMatch, language, code] = match;
       const beforeCode = content.slice(lastIndex, match.index);
       if (beforeCode) {
         parts.push(
           <div
             key={lastIndex}
-            className="prose prose-invert max-w-none"
+            className="assistant-content"
             dangerouslySetInnerHTML={renderAssistantResponse(beforeCode)}
           />
         );
       }
-
       parts.push(
-        <div key={match.index} className="relative my-2">
+        <div key={match.index} className="code-block-container">
           <SyntaxHighlighter
             language={language || "text"}
             style={vscDarkPlus}
@@ -169,14 +242,16 @@ function ChatWindow({ chatId, setCurrentChatId, isSidebarOpen, user }) {
           >
             {code.trim()}
           </SyntaxHighlighter>
-          <CopyToClipboard text={code.trim()} onCopy={() => setCopied(true)}>
-            <button className="absolute top-2 right-2 bg-gradient-to-r from-red-500 to-purple-500 text-white px-2 py-1 rounded-lg text-sm hover:from-red-600 hover:to-purple-600">
-              {copied ? "Copied!" : "Copy"}
-            </button>
-          </CopyToClipboard>
+          {!isLoading && (
+            <CopyToClipboard text={code.trim()} onCopy={() => setCopied(true)}>
+              <button className="copy-button">
+                {copied ? "Copied!" : "Copy"}
+              </button>
+            </CopyToClipboard>
+          )}
         </div>
       );
-      lastIndex = codeBlockRegex.lastIndex;
+      lastIndex = match.index + fullMatch.length;
     }
 
     const afterCode = content.slice(lastIndex);
@@ -184,19 +259,23 @@ function ChatWindow({ chatId, setCurrentChatId, isSidebarOpen, user }) {
       parts.push(
         <div
           key={lastIndex}
-          className="prose prose-invert max-w-none"
+          className="assistant-content"
           dangerouslySetInnerHTML={renderAssistantResponse(afterCode)}
         />
       );
     }
 
-    return parts.length > 0 ? (
-      parts
-    ) : (
-      <div
-        className="prose prose-invert max-w-none"
-        dangerouslySetInnerHTML={renderAssistantResponse(content)}
-      />
+    return (
+      <div className="assistant-response">
+        {parts.length > 0 ? (
+          parts
+        ) : (
+          <div
+            className="assistant-content"
+            dangerouslySetInnerHTML={renderAssistantResponse(content)}
+          />
+        )}
+      </div>
     );
   };
 
@@ -207,29 +286,43 @@ function ChatWindow({ chatId, setCurrentChatId, isSidebarOpen, user }) {
     }
   }, [copied]);
 
+  const TypingIndicator = () => (
+    <div className="flex space-x-1">
+      <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></span>
+      <span
+        className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+        style={{ animationDelay: "0.2s" }}
+      ></span>
+      <span
+        className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+        style={{ animationDelay: "0.4s" }}
+      ></span>
+    </div>
+  );
+
   return (
     <div
       className={`flex flex-col h-screen transition-all duration-300 ${
         isSidebarOpen ? "ml-64" : "ml-16"
       } p-4 flex-1`}
     >
-      {/* User Info */}
       <div className="flex justify-end items-center mb-4">
         <div className="flex items-center gap-2">
-          <span className="text-white font-bold text-[22px]">{user.username}</span>
+          <span className="text-white font-bold text-[22px]">
+            {user.username}
+          </span>
           <div className="w-10 h-10 rounded-full bg-gradient-to-r from-red-500 to-purple-500 flex items-center justify-center text-white font-bold text-xl">
             {avatarLetter}
           </div>
         </div>
       </div>
 
-      {/* Chat Messages with Hidden Scrollbar */}
       <div
-        ref={messagesContainerRef} // Attach ref to messages container
+        ref={messagesContainerRef}
         className="flex-1 overflow-y-auto space-y-3 scrollbar-hide"
       >
         {messages.length === 0 ? (
-          <div className="flex items-center justify-center h-full text-white text-lg font-medium opacity-70">
+          <div className="flex items-center justify-center h-full text-white text-lg font-medium ">
             Welcome to your neighborhood AI bot! Ask a new question to get the
             bot started.
           </div>
@@ -240,28 +333,64 @@ function ChatWindow({ chatId, setCurrentChatId, isSidebarOpen, user }) {
               className={`bg-[#323232] p-3 rounded-lg w-fit ${
                 msg.role === "user"
                   ? "border-b border-blue-500 text-white ml-auto"
+                  : msg.role === "internet"
+                  ? "border-b border-green-500 text-white max-w-[50%]"
                   : "border-b border-purple-500 text-white max-w-[50%]"
               }`}
             >
-              {renderMessageContent(msg.content, msg.role)}
+              {msg.role === "assistant" && !msg.content && isLoading ? (
+                <div className="flex items-center justify-center">
+                  <TypingIndicator />
+                </div>
+              ) : msg.role === "internet" && !msg.content && isLoading ? (
+                <div className="flex items-center justify-center">
+                  <TypingIndicator />
+                </div>
+              ) : (
+                renderMessageContent(msg.content, msg.role)
+              )}
             </div>
           ))
         )}
       </div>
 
-      {/* Message Input */}
-      <div className="flex items-center mt-4 border rounded-[30px] rounded-lg p-2 px-5">
+      <div className="flex items-center mt-4 border rounded-[30px] p-2 px-5">
+        <button
+          onClick={toggleSearchMode}
+          className={`p-2 rounded-full mr-2 transition ${
+            isInternetSearchMode
+              ? "bg-green-500 text-white"
+              : "bg-gray-500 text-white hover:bg-gray-400"
+          }`}
+          title={
+            isInternetSearchMode
+              ? "Switch to Assistant Mode"
+              : "Switch to Internet Search Mode"
+          }
+        >
+          <Globe size={25} />
+        </button>
         <input
           type="text"
           className="flex-1 bg-transparent text-white outline-none px-3 py-2"
-          placeholder="Type a message..."
+          placeholder={
+            isInternetSearchMode
+              ? "Search the internet..."
+              : "Type a message..."
+          }
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyPress={(e) => e.key === "Enter" && sendMessage()}
+          onKeyPress={handleKeyPress}
+          disabled={isLoading}
         />
         <button
           onClick={sendMessage}
-          className="p-2 rounded-full bg-gradient-to-r from-red-500 to-purple-500 hover:bg-white transition"
+          className={`p-2 rounded-full transition ${
+            isLoading
+              ? "bg-gray-500 opacity-50 cursor-not-allowed"
+              : "bg-gradient-to-r from-red-500 to-purple-500 hover:bg-white"
+          }`}
+          disabled={isLoading}
         >
           <Rocket size={25} />
         </button>
@@ -269,20 +398,5 @@ function ChatWindow({ chatId, setCurrentChatId, isSidebarOpen, user }) {
     </div>
   );
 }
-
-// Custom CSS to hide scrollbar
-const styles = `
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
-  .scrollbar-hide {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
-  }
-`;
-const styleSheet = document.createElement("style");
-styleSheet.type = "text/css";
-styleSheet.innerText = styles;
-document.head.appendChild(styleSheet);
 
 export default ChatWindow;

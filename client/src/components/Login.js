@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { Eye, EyeOffIcon, Rocket } from 'lucide-react';
 
-function Login({ setUser }) {
+function Login({ onLogin }) {
   const [identifier, setIdentifier] = useState(''); // Changed to identifier
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({});
@@ -25,7 +25,7 @@ function Login({ setUser }) {
       const res = await axios.post('http://localhost:5000/api/auth/login', { identifier, password });
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('username', res.data.username);
-      setUser({ token: res.data.token, username: res.data.username });
+      onLogin({ token: res.data.token, username: res.data.username });
     } catch (err) {
       setErrors({ form: err.response?.data?.error || 'Login failed' });
     }

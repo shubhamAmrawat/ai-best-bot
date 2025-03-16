@@ -34,4 +34,21 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+router.delete('/:id', async (req, res) => {
+  try {
+    console.log("Attempting to delete chat with ID:", req.params.id);
+    console.log("User ID from token:", req.userId); // Changed from req.user.userId
+    const chat = await Chat.findOneAndDelete({ _id: req.params.id, userId: req.userId }); // Changed from req.user.userId
+    if (!chat) {
+      console.log("Chat not found or unauthorized for ID:", req.params.id);
+      throw new Error('Chat not found or unauthorized');
+    }
+    console.log("Chat deleted successfully:", chat);
+    res.status(200).json({ message: 'Chat deleted successfully' });
+  } catch (error) {
+    console.error("Delete chat error:", error.message);
+    res.status(400).json({ error: error.message });
+  }
+});
+
 module.exports = router;

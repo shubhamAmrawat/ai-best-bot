@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom'; // Added useNavigate
+import { Link, useNavigate } from 'react-router-dom';
 import { UserPlus } from 'lucide-react';
 
-function Signup({ setUser }) {
+function Signup({ onLogin }) { // Changed setUser to onLogin
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errors, setErrors] = useState({});
-  const [signupSuccess, setSignupSuccess] = useState(false); // Track signup success
-  const navigate = useNavigate(); // Hook for redirection
+  const [signupSuccess, setSignupSuccess] = useState(false);
+  const navigate = useNavigate();
 
   const validateForm = () => {
     const newErrors = {};
@@ -29,19 +29,23 @@ function Signup({ setUser }) {
     if (!validateForm()) return;
 
     try {
-      await axios.post('http://localhost:5000/api/auth/signup', { username, email, password });
-      setSignupSuccess(true); // Show success message
+      const res = await axios.post('http://localhost:5000/api/auth/signup', { username, email, password });
+      const userData = { token: res.data.token, username: res.data.username };
+      localStorage.setItem('token', res.data.token);
+      localStorage.setItem('username', res.data.username);
+      onLogin(userData); // Call onLogin instead of redirecting to /login
+      setSignupSuccess(true);
     } catch (err) {
       setErrors({ form: err.response?.data?.error || 'Signup failed' });
     }
   };
 
-  // Redirect to login after signup success
+  // Redirect to landing page after signup success
   useEffect(() => {
     if (signupSuccess) {
       const timer = setTimeout(() => {
-        navigate('/login'); // Redirect to login page
-      }, 2000); // 2-second delay
+        navigate('/'); // Redirect to landing page instead of /login
+      }, 2000);
       return () => clearTimeout(timer);
     }
   }, [signupSuccess, navigate]);
@@ -98,7 +102,7 @@ function Signup({ setUser }) {
         {signupSuccess ? (
           <div className="text-center">
             <h2 className="text-3xl text-white font-bold mb-6">Signed up Successfully!</h2>
-            <p className="text-white">Redirecting to login in 2 seconds...</p>
+            <p className="text-white">Redirecting to dashboard in 2 seconds...</p>
           </div>
         ) : (
           <form onSubmit={handleSignup}>
