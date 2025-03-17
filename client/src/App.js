@@ -6,6 +6,7 @@ import Signup from "./components/Signup";
 import Sidebar from "./components/Sidebar";
 import ChatWindow from "./components/ChatWindow";
 import LandingPage from "./components/LandingPage";
+import { GoogleOAuthProvider } from "@react-oauth/google"; // Import GoogleOAuthProvider
 
 function App() {
   const [user, setUser] = useState(() => {
@@ -54,78 +55,80 @@ function App() {
   };
 
   return (
-    <Router>
-      <div className="h-screen bg-[#1a1a1a] text-white">
-        <Routes>
-          <Route
-            path="/login"
-            element={user ? <Navigate to="/" /> : <Login onLogin={handleLogin} />}
-          />
-          <Route
-            path="/signup"
-            element={user ? <Navigate to="/" /> : <Signup onLogin={handleLogin} />}
-          />
-          <Route
-            path="/"
-            element={
-              user ? (
-                <LandingPage user={user} handleLogout={handleLogout} /> // Pass handleLogout
-              ) : (
-                <Navigate to="/login" />
-              )
-            }
-          />
-          <Route
-            path="/chatbot"
-            element={
-              user ? (
-                <div className="flex">
-                  <Sidebar
-                    user={user}
-                    isSidebarOpen={isSidebarOpen}
-                    setIsSidebarOpen={setIsSidebarOpen}
-                    setCurrentChatId={setCurrentChatId}
-                    currentChatId={currentChatId}
-                    handleLogout={handleLogout}
-                  />
-                  <ChatWindow
-                    chatId={currentChatId}
-                    setCurrentChatId={setCurrentChatId}
-                    isSidebarOpen={isSidebarOpen}
-                    user={user}
-                  />
-                </div>
-              ) : (
-                <Navigate to="/login" />
-              )
-            }
-          />
-          <Route
-            path="/tool-builder"
-            element={
-              user ? (
-                <div className="flex">
-                  <Sidebar
-                    user={user}
-                    isSidebarOpen={isSidebarOpen}
-                    setIsSidebarOpen={setIsSidebarOpen}
-                    setCurrentChatId={setCurrentChatId}
-                    currentChatId={currentChatId}
-                    handleLogout={handleLogout}
-                  />
-                  <div className="flex-1 p-4">
-                    <h1 className="text-2xl">Tool Builder (Coming Soon)</h1>
+    <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}> {/* Wrap with GoogleOAuthProvider */}
+      <Router>
+        <div className="h-screen bg-[#1a1a1a] text-white">
+          <Routes>
+            <Route
+              path="/login"
+              element={user ? <Navigate to="/" /> : <Login onLogin={handleLogin} />}
+            />
+            <Route
+              path="/signup"
+              element={user ? <Navigate to="/" /> : <Signup onLogin={handleLogin} />}
+            />
+            <Route
+              path="/"
+              element={
+                user ? (
+                  <LandingPage user={user} handleLogout={handleLogout} /> // Pass handleLogout
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
+            />
+            <Route
+              path="/chatbot"
+              element={
+                user ? (
+                  <div className="flex">
+                    <Sidebar
+                      user={user}
+                      isSidebarOpen={isSidebarOpen}
+                      setIsSidebarOpen={setIsSidebarOpen}
+                      setCurrentChatId={setCurrentChatId}
+                      currentChatId={currentChatId}
+                      handleLogout={handleLogout}
+                    />
+                    <ChatWindow
+                      chatId={currentChatId}
+                      setCurrentChatId={setCurrentChatId}
+                      isSidebarOpen={isSidebarOpen}
+                      user={user}
+                    />
                   </div>
-                </div>
-              ) : (
-                <Navigate to="/login" />
-              )
-            }
-          />
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
-      </div>
-    </Router>
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
+            />
+            <Route
+              path="/tool-builder"
+              element={
+                user ? (
+                  <div className="flex">
+                    <Sidebar
+                      user={user}
+                      isSidebarOpen={isSidebarOpen}
+                      setIsSidebarOpen={setIsSidebarOpen}
+                      setCurrentChatId={setCurrentChatId}
+                      currentChatId={currentChatId}
+                      handleLogout={handleLogout}
+                    />
+                    <div className="flex-1 p-4">
+                      <h1 className="text-2xl">Tool Builder (Coming Soon)</h1>
+                    </div>
+                  </div>
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
+            />
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </div>
+      </Router>
+    </GoogleOAuthProvider>
   );
 }
 

@@ -1,18 +1,20 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import { Link } from 'react-router-dom';
-import { Eye, EyeOffIcon, Rocket } from 'lucide-react';
+import React, { useState } from "react";
+import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
+import { Eye, EyeOff, Rocket } from "lucide-react"; // Added Rocket
+import { GoogleLogin } from "@react-oauth/google"; // Import Google Login component
 
 function Login({ onLogin }) {
-  const [identifier, setIdentifier] = useState(''); // Changed to identifier
-  const [password, setPassword] = useState('');
+  const [identifier, setIdentifier] = useState("");
+  const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
   const [visible, setVisible] = useState(false);
+  const navigate = useNavigate();
 
   const validateForm = () => {
     const newErrors = {};
-    if (!identifier) newErrors.identifier = 'Username or email is required';
-    if (!password) newErrors.password = 'Password is required';
+    if (!identifier) newErrors.identifier = "Username or email is required";
+    if (!password) newErrors.password = "Password is required";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -22,28 +24,40 @@ function Login({ onLogin }) {
     if (!validateForm()) return;
 
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/login', { identifier, password });
-      localStorage.setItem('token', res.data.token);
-      localStorage.setItem('username', res.data.username);
+      const res = await axios.post("http://localhost:5000/api/auth/login", {
+        identifier,
+        password,
+      });
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("username", res.data.username);
       onLogin({ token: res.data.token, username: res.data.username });
     } catch (err) {
-      setErrors({ form: err.response?.data?.error || 'Login failed' });
+      setErrors({ form: err.response?.data?.error || "Login failed" });
     }
+  };
+
+  const handleGoogleSuccess = async (response) => {
+    try {
+      const res = await axios.post("http://localhost:5000/api/auth/google-login", {
+        token: response.credential,
+      });
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("username", res.data.username);
+      onLogin({ token: res.data.token, username: res.data.username });
+    } catch (err) {
+      setErrors({ form: err.response?.data?.error || "Google login failed" });
+    }
+  };
+
+  const handleGoogleFailure = (error) => {
+    console.error("Google Login Failed:", error);
+    setErrors({ form: "Google login failed. Please try again." });
   };
 
   return (
     <div className="relative flex items-center justify-center h-screen w-screen bg-[#1e1e1e] overflow-hidden">
-      {/* Background SVG Decorations */}
-      <svg
-        className="absolute top-0 left-0 w-1/3 opacity-10"
-        viewBox="0 0 200 200"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M100 0C44.7715 0 0 44.7715 0 100C0 155.228 44.7715 200 100 200C155.228 200 200 155.228 200 100C200 44.7715 155.228 0 100 0ZM100 180C55.8172 180 20 144.183 20 100C20 55.8172 55.8172 20 100 20C144.183 20 180 55.8172 180 100C180 144.183 144.183 180 100 180Z"
-          fill="url(#gradient)"
-        />
+      <svg className="absolute top-0 left-0 w-1/3 opacity-10" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M100 0C44.7715 0 0 44.7715 0 100C0 155.228 44.7715 200 100 200C155.228 200 200 155.228 200 100C200 44.7715 155.228 0 100 0ZM100 180C55.8172 180 20 144.183 20 100C20 55.8172 55.8172 20 100 20C144.183 20 180 55.8172 180 100C180 144.183 144.183 180 100 180Z" fill="url(#gradient)" />
         <defs>
           <linearGradient id="gradient" x1="0" y1="0" x2="200" y2="200">
             <stop offset="0%" stopColor="#ef4444" />
@@ -51,16 +65,8 @@ function Login({ onLogin }) {
           </linearGradient>
         </defs>
       </svg>
-      <svg
-        className="absolute bottom-0 right-0 w-1/4 opacity-10"
-        viewBox="0 0 200 200"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M100 200C155.228 200 200 155.228 200 100C200 44.7715 155.228 0 100 0C44.7715 0 0 44.7715 0 100C0 155.228 44.7715 200 100 200ZM100 20C144.183 20 180 55.8172 180 100C180 144.183 144.183 180 100 180C55.8172 180 20 144.183 20 100C20 55.8172 55.8172 20 100 20Z"
-          fill="url(#gradient2)"
-        />
+      <svg className="absolute bottom-0 right-0 w-1/4 opacity-10" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M100 200C155.228 200 200 155.228 200 100C200 44.7715 155.228 0 100 0C44.7715 0 0 44.7715 0 100C0 155.228 44.7715 200 100 200ZM100 20C144.183 20 180 55.8172 180 100C180 144.183 144.183 180 100 180C55.8172 180 20 144.183 20 100C20 55.8172 55.8172 20 100 20Z" fill="url(#gradient2)" />
         <defs>
           <linearGradient id="gradient2" x1="200" y1="0" x2="0" y2="200">
             <stop offset="0%" stopColor="#a855f7" />
@@ -69,7 +75,6 @@ function Login({ onLogin }) {
         </defs>
       </svg>
 
-      {/* Login Form */}
       <form onSubmit={handleLogin} className="relative bg-[#323232] p-8 rounded-xl shadow-2xl w-96 z-10 border border-gray-500">
         <h2 className="text-3xl text-white font-bold mb-6 text-center">Login</h2>
         {errors.form && <p className="text-red-500 mb-4 text-center">{errors.form}</p>}
@@ -83,33 +88,42 @@ function Login({ onLogin }) {
           />
           {errors.identifier && <p className="text-red-500 text-sm mt-1">{errors.identifier}</p>}
         </div>
-        <div className="mb-6 pe-2 flex items-center bg-[#1e1e1e] rounded-lg outline-none border border-gray-500  transition ">
-          <input
-            type={visible ? 'text' : 'password'}
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-3 bg-transparent outline-none text-white  "
-          />
+        <div className="mb-6">
+          <div className="pe-2 flex items-center bg-[#1e1e1e] rounded-lg outline-none border border-gray-500 transition">
+            <input
+              type={visible ? "text" : "password"}
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full p-3 bg-transparent outline-none text-white"
+            />
+            <span onClick={() => setVisible(!visible)} className="cursor-pointer ml-2">
+              {visible ? <EyeOff size={20} /> : <Eye size={20} />}
+            </span>
+          </div>
           {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
-          <span onClick={() => setVisible(!visible)} className='cursor-pointer '>
-            {
-              visible? (
-                <EyeOffIcon size={20} />
-              ) : (
-                  <Eye size={20} />
-              )
-            }
-  
-          </span>
         </div>
         <button
           type="submit"
-          className="w-full p-3 bg-gradient-to-r from-red-500 to-purple-500 hover:from-red-600 hover:to-purple-600 text-white font-bold rounded-lg flex items-center justify-center gap-2 transition"
+          className="w-full p-3 bg-gradient-to-r from-red-500 to-purple-500 hover:from-red-600 hover:to-purple-600 text-white font-bold rounded-lg flex items-center justify-center gap-2 transition mb-4"
         >
           <Rocket size={20} />
           Login
         </button>
+        <GoogleLogin
+          onSuccess={handleGoogleSuccess}
+          onError={handleGoogleFailure}
+          render={(renderProps) => (
+            <button
+              onClick={renderProps.onClick}
+              disabled={renderProps.disabled}
+              className="w-full p-3 bg-white text-black font-bold rounded-lg flex items-center justify-center gap-2 transition hover:bg-gray-200 mb-4"
+            >
+              <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
+              Login with Google
+            </button>
+          )}
+        />
         <p className="text-white mt-4 text-center">
           Don’t have an account? <Link to="/signup" className="text-blue-400 hover:text-blue-300">Sign up</Link>
         </p>

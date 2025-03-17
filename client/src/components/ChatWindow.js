@@ -319,7 +319,7 @@ function ChatWindow({ chatId, setCurrentChatId, isSidebarOpen, user }) {
 
       <div
         ref={messagesContainerRef}
-        className="flex-1 overflow-y-auto space-y-3 scrollbar-hide"
+        className="flex-1 overflow-y-auto space-y-3 scrollbar-hide gap-2v"
       >
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full text-white text-lg font-medium ">
@@ -354,13 +354,13 @@ function ChatWindow({ chatId, setCurrentChatId, isSidebarOpen, user }) {
         )}
       </div>
 
-      <div className="flex items-center mt-4 border rounded-[30px] p-2 px-5">
+      <div className="flex items-center mt-4 border-gray-700 border rounded-[15px] p-2 px-5">
         <button
           onClick={toggleSearchMode}
           className={`p-2 rounded-full mr-2 transition ${
             isInternetSearchMode
-              ? "bg-green-500 text-white"
-              : "bg-gray-500 text-white hover:bg-gray-400"
+              ? "bg-green-500 text-white animate-pulse"
+              : "bg-blue-500 text-white hover:bg-blue-400 "
           }`}
           title={
             isInternetSearchMode
@@ -372,7 +372,7 @@ function ChatWindow({ chatId, setCurrentChatId, isSidebarOpen, user }) {
         </button>
         <input
           type="text"
-          className="flex-1 bg-transparent text-white outline-none px-3 py-2"
+          className="flex-1 bg-transparent  text-white outline-none px-3 py-2"
           placeholder={
             isInternetSearchMode
               ? "Search the internet..."

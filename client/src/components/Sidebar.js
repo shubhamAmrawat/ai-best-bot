@@ -3,10 +3,18 @@ import axios from "axios";
 import { Menu, PlusCircle, LogOut, Trash2, Home } from "lucide-react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate for routing
 
-function Sidebar({ user, isSidebarOpen, setIsSidebarOpen, setCurrentChatId, currentChatId, handleLogout }) {
+function Sidebar({
+  user,
+  isSidebarOpen,
+  setIsSidebarOpen,
+  setCurrentChatId,
+  currentChatId,
+  handleLogout,
+}) {
   const [chats, setChats] = useState([]);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [chatToDelete, setChatToDelete] = useState(null);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false); // New state for logout confirmation
   const navigate = useNavigate(); // Initialize navigate for routing
 
   useEffect(() => {
@@ -70,7 +78,8 @@ function Sidebar({ user, isSidebarOpen, setIsSidebarOpen, setCurrentChatId, curr
 
       // If there are remaining chats, select the first one
       if (chats.length > 1) {
-        const newCurrentChatId = chats.find((chat) => chat._id !== chatToDelete)?._id || null;
+        const newCurrentChatId =
+          chats.find((chat) => chat._id !== chatToDelete)?._id || null;
         setCurrentChatId(newCurrentChatId);
       }
 
@@ -100,6 +109,19 @@ function Sidebar({ user, isSidebarOpen, setIsSidebarOpen, setCurrentChatId, curr
     // localStorage.clear();
   };
 
+  const handleLogoutClick = () => {
+    setShowLogoutConfirm(true); // Show logout confirmation dialog
+  };
+
+  const confirmLogout = () => {
+    handleLogout(); // Call the logout handler from parent
+    setShowLogoutConfirm(false); // Hide the dialog after logout
+  };
+
+  const cancelLogout = () => {
+    setShowLogoutConfirm(false); // Hide the dialog and return to normal
+  };
+
   return (
     <div
       className={`fixed h-full bg-[#1e1e1e] border-r border-gray-500 transition-all duration-300 flex flex-col ${
@@ -107,7 +129,6 @@ function Sidebar({ user, isSidebarOpen, setIsSidebarOpen, setCurrentChatId, curr
       }`}
     >
       {/* Toggle Button */}
-
       <div
         className={`mt-2 mb-2 flex items-center  ${
           isSidebarOpen
@@ -135,12 +156,14 @@ function Sidebar({ user, isSidebarOpen, setIsSidebarOpen, setCurrentChatId, curr
 
       {/* New Chat Button */}
       <button
-        className={`mt-4 flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-purple-500 font-bold py-2 px-4 rounded-lg transition ${
-          isSidebarOpen ? "w-full" : "w-12 h-12 p-2"
+        className={`mt-4 flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-purple-500 font-bold py-2 px-4 rounded-full   ${
+          isSidebarOpen
+            ? "w-full"
+            : "w-10 h-10 flex-col justify-center items-center self-center rounded-[50px] hover:from-red-600 hover:to-purple-600 transition-all duration-300 ease-in-out transform hover:scale-110"
         }`}
         onClick={createNewChat}
       >
-        <PlusCircle size={isSidebarOpen ? 24 : 28} />
+        <PlusCircle size={isSidebarOpen ? 24 : 22} />
         {isSidebarOpen && <span>New Chat</span>}
       </button>
 
@@ -152,8 +175,8 @@ function Sidebar({ user, isSidebarOpen, setIsSidebarOpen, setCurrentChatId, curr
               key={chat._id}
               className={`p-3 rounded-lg cursor-pointer transition flex items-center justify-between ${
                 currentChatId === chat._id
-                  ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white"
-                  : "bg-[#3d3c3c] hover:bg-[#494747] text-gray-300"
+                  ? "bg-[#3d3c3c] text-white"
+                  : "hover:bg-[#494747] text-gray-300"
               }`}
             >
               <span onClick={() => selectChat(chat._id)} className="flex-1">
@@ -172,7 +195,7 @@ function Sidebar({ user, isSidebarOpen, setIsSidebarOpen, setCurrentChatId, curr
 
       {/* Delete Confirmation Dialog */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000] pointer-events-none">
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[1000] pointer-events-none">
           <div className="bg-[#2c2c2c] p-6 rounded-lg shadow-lg text-white pointer-events-auto">
             <h3 className="text-lg font-bold mb-4">Confirm Delete</h3>
             <p className="mb-4">
@@ -197,14 +220,42 @@ function Sidebar({ user, isSidebarOpen, setIsSidebarOpen, setCurrentChatId, curr
         </div>
       )}
 
+      {/* Logout Confirmation Dialog */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[1000] pointer-events-none">
+          <div className="bg-[#2c2c2c] p-6 rounded-lg shadow-lg text-white pointer-events-auto">
+            <h3 className="text-lg font-bold mb-4">Confirm Logout</h3>
+            <p className="mb-4 text-yellow-300">
+              Are you sure you want to log out?
+            </p>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={cancelLogout}
+                className="px-4 py-2 bg-gray-500 hover:bg-gray-600 rounded-lg"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmLogout}
+                className="px-4 py-2 bg-red-500 hover:bg-red-600 rounded-lg"
+              >
+                Yes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Logout Button */}
       <button
-        className={`mt-auto flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-purple-500 font-bold py-2 px-4 rounded-lg transition ${
-          isSidebarOpen ? "w-full" : "w-12 h-12 p-1"
+        className={`mt-auto flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-purple-500 font-bold py-2 px-4 rounded-ful transition ${
+          isSidebarOpen
+            ? "w-full"
+            : "w-10 h-10 flex-col justify-center items-center self-center rounded-[50px] hover:from-red-600 hover:to-purple-600 transition-all duration-300 ease-in-out transform hover:scale-110"
         }`}
-        onClick={handleLogout}
+        onClick={handleLogoutClick} // Changed to trigger confirmation
       >
-        <LogOut size={isSidebarOpen ? 24 : 38} />
+        <LogOut size={isSidebarOpen ? 24 : 20} />
         {isSidebarOpen && <span>Logout</span>}
       </button>
     </div>

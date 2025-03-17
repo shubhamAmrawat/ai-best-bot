@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LogOut } from "lucide-react";
 
+import './LandinPage.css'
+
 function LandingPage({ user, handleLogout }) {
   const navigate = useNavigate();
   const avatarLetter = user.username.charAt(0).toUpperCase();
