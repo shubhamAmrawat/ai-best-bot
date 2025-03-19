@@ -26,7 +26,7 @@ function LandingPage({ user, handleLogout }) {
   return (
     <div className="relative flex flex-col h-screen bg-[#1a1a1a] text-white overflow-hidden">
       {/* Background SVGs */}
-      <svg
+      {/* <svg
         className="absolute top-0 left-0 w-1/3 opacity-10"
         viewBox="0 0 200 200"
         fill="none"
@@ -60,10 +60,10 @@ function LandingPage({ user, handleLogout }) {
           </linearGradient>
         </defs>
       </svg>
-     
+      */}
 
       {/* Header */}
-      <header className="sticky top-0 z-20 bg-[#1a1a1a] border-b border-gray-500 p-4 flex justify-between items-center">
+      <header className="sticky top-0 z-20 bg-[#1a1aa]  border-b border-gray-700 p-4 flex justify-between items-center">
         {/* Brand Logo */}
         <div className="flex items-center">
           <h1 className="text-2xl font-bold bg-gradient-to-r from-red-500 to-purple-500 bg-clip-text text-transparent">
@@ -100,7 +100,7 @@ function LandingPage({ user, handleLogout }) {
       </header>
 
       {/* Main Content */}
-      <div className="flex flex-col items-center justify-center flex-1 pt-4">
+      <div className="flex main-content flex-col items-center justify-center flex-1 pt-4">
         <h1 className="text-4xl font-bold mb-12">Welcome, {user.username}!</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-3xl">
           {/* CHATBOT Option */}

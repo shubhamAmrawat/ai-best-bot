@@ -156,9 +156,9 @@ function Sidebar({
 
       {/* New Chat Button */}
       <button
-        className={`mt-4 flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-purple-500 font-bold py-2 px-4 rounded-full   ${
+        className={`mt-4 flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-purple-500 font-bold py-2 px-4    ${
           isSidebarOpen
-            ? "w-full"
+            ? "w-full rounded-lg"
             : "w-10 h-10 flex-col justify-center items-center self-center rounded-[50px] hover:from-red-600 hover:to-purple-600 transition-all duration-300 ease-in-out transform hover:scale-110"
         }`}
         onClick={createNewChat}
@@ -248,10 +248,10 @@ function Sidebar({
 
       {/* Logout Button */}
       <button
-        className={`mt-auto flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-purple-500 font-bold py-2 px-4 rounded-ful transition ${
+        className={`mt-auto flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-purple-500 font-bold py-2 px-4  transition ${
           isSidebarOpen
-            ? "w-full"
-            : "w-10 h-10 flex-col justify-center items-center self-center rounded-[50px] hover:from-red-600 hover:to-purple-600 transition-all duration-300 ease-in-out transform hover:scale-110"
+            ? "w-full rounded-lg"
+            : "w-10 h-10 flex-col justify-center items-center self-center rounded-[50px] hover:from-red-600 hover:to-purple-600 transition-all duration-300 ease-in-out transform "
         }`}
         onClick={handleLogoutClick} // Changed to trigger confirmation
       >
