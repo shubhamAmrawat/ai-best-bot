@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Menu, PlusCircle, LogOut, Trash2, Home } from "lucide-react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate for routing
+import { Menu, PlusCircle, LogOut, Trash2, Home, PanelRightOpen, PanelRightOpenIcon, PanelRightCloseIcon } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 function Sidebar({
   user,
@@ -14,12 +14,12 @@ function Sidebar({
   const [chats, setChats] = useState([]);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [chatToDelete, setChatToDelete] = useState(null);
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false); // New state for logout confirmation
-  const navigate = useNavigate(); // Initialize navigate for routing
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchChats();
-  }, [currentChatId]); // Re-fetch when currentChatId changes
+  }, [currentChatId]);
 
   const fetchChats = async () => {
     try {
@@ -44,7 +44,7 @@ function Sidebar({
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setCurrentChatId(res.data._id);
-      fetchChats(); // Refresh chat list
+      fetchChats();
     } catch (error) {
       console.error("Create chat error:", error.message);
     }
@@ -68,15 +68,12 @@ function Sidebar({
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      // Update the current chat if the deleted chat was selected
       if (chatToDelete === currentChatId) {
-        setCurrentChatId(null); // Deselect the deleted chat
+        setCurrentChatId(null);
       }
 
-      // Refresh the chat list
       await fetchChats();
 
-      // If there are remaining chats, select the first one
       if (chats.length > 1) {
         const newCurrentChatId =
           chats.find((chat) => chat._id !== chatToDelete)?._id || null;
@@ -102,101 +99,139 @@ function Sidebar({
   };
 
   const goToLandingPage = () => {
-    // Clear current chat and navigate to landing page
     setCurrentChatId(null);
-    navigate("/"); // Adjust the path to your landing page route
-    // Optionally clear localStorage if logout is intended
-    // localStorage.clear();
+    navigate("/");
   };
 
   const handleLogoutClick = () => {
-    setShowLogoutConfirm(true); // Show logout confirmation dialog
+    setShowLogoutConfirm(true);
   };
 
   const confirmLogout = () => {
-    handleLogout(); // Call the logout handler from parent
-    setShowLogoutConfirm(false); // Hide the dialog after logout
+    handleLogout();
+    setShowLogoutConfirm(false);
   };
 
   const cancelLogout = () => {
-    setShowLogoutConfirm(false); // Hide the dialog and return to normal
+    setShowLogoutConfirm(false);
   };
 
   return (
     <div
-      className={`fixed h-full bg-[#1e1e1e] border-r border-gray-500 transition-all duration-300 flex flex-col ${
-        isSidebarOpen ? "w-64 p-4" : "w-16 p-2"
-      }`}
+      className={`fixed h-full bg-[#1e1e1e] border-r border-gray-500 transition-all duration-500 ease-in-out flex flex-col ${
+        isSidebarOpen ? "w-64 p-4" : "w-14 p-2"
+      }`} // Kept original sizes, improved transition duration and easing
     >
       {/* Toggle Button */}
       <div
-        className={`mt-2 mb-2 flex items-center  ${
+        className={`mt-2 mb-2 flex items-center transition-all duration-500 ease-in-out ${
           isSidebarOpen
             ? "justify-between"
             : "flex-col justify-center items-center"
-        } transition-all duration-300 ease-in-out`}
+        }`} // Improved transition
       >
-        <button
-          className="p-2 rounded-full bg-gradient-to-r from-red-500 to-purple-500 hover:from-red-600 hover:to-purple-600 transition-all duration-300 ease-in-out transform hover:scale-110 "
-          onClick={toggleSidebar}
-        >
-          <Menu size={24} className="text-white" />
-        </button>
+        <div className="relative group">
+          <button
+            className="p-2 rounded-full bg-gradient-to-r from-red-500 to-purple-500 hover:from-red-600 hover:to-purple-600 transition-all duration-300 ease-in-out transform hover:scale-105" // Added hover scale effect
+            onClick={toggleSidebar}
+          >
+            {isSidebarOpen ? (
+              <PanelRightOpenIcon size={24} className="text-white" />
+            ) : (
+              <PanelRightCloseIcon size={24} className="text-white" />
+            )}
+          </button>
+          {/* Tooltip for closed state */}
+          {!isSidebarOpen && (
+            <span className="absolute left-14 top-1/2 transform -translate-y-1/2 bg-gray-700 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              Toggle Sidebar
+            </span>
+          )}
+        </div>
 
         {/* Home Icon */}
-        <button
-          className={`p-2 rounded-full bg-gradient-to-r from-red-500 to-purple-500 hover:from-red-600 hover:to-purple-600 transition-all duration-300 ease-in-out transform hover:scale-110 ${
-            isSidebarOpen ? "w-10 h-10 mt-0" : "w-10 h-10 mt-2"
-          }`}
-          onClick={goToLandingPage}
-        >
-          <Home size={24} className="text-white" />
-        </button>
+        <div className="relative group">
+          <button
+            className={`p-2 rounded-full bg-gradient-to-r from-red-500 to-purple-500 hover:from-red-600 hover:to-purple-600 transition-all duration-300 ease-in-out transform hover:scale-105 ${
+              isSidebarOpen ? "w-10 h-10 mt-0" : "w-10 h-10 mt-2"
+            }`} // Added hover scale effect
+            onClick={goToLandingPage}
+          >
+            <Home size={24} className="text-white" />
+          </button>
+          {/* Tooltip for closed state */}
+          {!isSidebarOpen && (
+            <span className="absolute left-14 top-1/2 transform -translate-y-1/2 bg-gray-700 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              Home
+            </span>
+          )}
+        </div>
       </div>
 
       {/* New Chat Button */}
-      <button
-        className={`mt-4 flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-purple-500 font-bold py-2 px-4    ${
-          isSidebarOpen
-            ? "w-full rounded-lg"
-            : "w-10 h-10 flex-col justify-center items-center self-center rounded-[50px] hover:from-red-600 hover:to-purple-600 transition-all duration-300 ease-in-out transform hover:scale-110"
-        }`}
-        onClick={createNewChat}
-      >
-        <PlusCircle size={isSidebarOpen ? 24 : 22} />
-        {isSidebarOpen && <span>New Chat</span>}
-      </button>
+      <div className="relative group">
+        <button
+          className={`mt-4 flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-purple-500 hover:from-red-600 hover:to-purple-600 font-bold py-2 px-4 transition-all duration-300 ease-in-out transform hover:scale-105 ${
+            isSidebarOpen
+              ? "w-full rounded-lg"
+              : "w-10 h-10 flex-col justify-center items-center self-center rounded-[50px]"
+          }`} // Added hover scale effect
+          onClick={createNewChat}
+        >
+          <PlusCircle size={isSidebarOpen ? 24 : 22} className="text-white" />
+          {isSidebarOpen && (
+            <span
+              className={`text-white transition-opacity duration-300 ${
+                isSidebarOpen ? "opacity-100" : "opacity-0"
+              }`} // Added fade effect for text
+            >
+              New Chat
+            </span>
+          )}
+        </button>
+        {/* Tooltip for closed state */}
+        {!isSidebarOpen && (
+          <span className="absolute left-14 top-1/2 transform -translate-y-1/2 bg-gray-700 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            New Chat
+          </span>
+        )}
+      </div>
 
       {/* Chat List */}
-      {isSidebarOpen && (
-        <div className="mt-8 space-y-4 flex-1 overflow-auto">
-          {chats.map((chat) => (
+      <div
+        className={`mt-8 space-y-4 flex-1 overflow-auto transition-opacity duration-500 ease-in-out ${
+          isSidebarOpen ? "opacity-100" : "opacity-0 h-0"
+        }`} // Added fade effect for chat list
+      >
+        {isSidebarOpen &&
+          chats.map((chat) => (
             <div
               key={chat._id}
-              className={`p-3 rounded-lg cursor-pointer transition flex items-center justify-between ${
+              className={`p-3 rounded-lg cursor-pointer transition-all duration-300 ease-in-out flex items-center justify-between ${
                 currentChatId === chat._id
                   ? "bg-[#3d3c3c] text-white"
                   : "hover:bg-[#494747] text-gray-300"
-              }`}
+              }`} // Improved transition for hover/active states
             >
               <span onClick={() => selectChat(chat._id)} className="flex-1">
                 {chat.title || `Chat ${chat._id.slice(0, 6)}`}
               </span>
               <button
                 onClick={() => handleDeleteChat(chat._id)}
-                className="text-red-400 hover:text-red-600 ml-2"
+                className="text-red-400 hover:text-red-600 transition-colors duration-200" // Added smooth color transition
               >
                 <Trash2 size={16} />
               </button>
             </div>
           ))}
-        </div>
-      )}
+      </div>
 
       {/* Delete Confirmation Dialog */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[1000] pointer-events-none">
-          <div className="bg-[#2c2c2c] p-6 rounded-lg shadow-lg text-white pointer-events-auto">
+          <div className="bg-[#2c2c2c] p-6 rounded-lg shadow-lg text-white pointer-events-auto transform transition-all duration-300 scale-100">
+            {" "}
+            {/* Added scale-in effect */}
             <h3 className="text-lg font-bold mb-4">Confirm Delete</h3>
             <p className="mb-4">
               Are you sure you want to delete this chat? This action cannot be
@@ -205,13 +240,13 @@ function Sidebar({
             <div className="flex justify-end gap-4">
               <button
                 onClick={cancelDeleteChat}
-                className="px-4 py-2 bg-gray-500 hover:bg-gray-600 rounded-lg"
+                className="px-4 py-2 bg-gray-500 hover:bg-gray-600 rounded-lg transition-colors duration-200" // Added smooth color transition
               >
                 Cancel
               </button>
               <button
                 onClick={confirmDeleteChat}
-                className="px-4 py-2 bg-red-500 hover:bg-red-600 rounded-lg"
+                className="px-4 py-2 bg-red-500 hover:bg-red-600 rounded-lg transition-colors duration-200" // Added smooth color transition
               >
                 Delete
               </button>
@@ -223,7 +258,9 @@ function Sidebar({
       {/* Logout Confirmation Dialog */}
       {showLogoutConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[1000] pointer-events-none">
-          <div className="bg-[#2c2c2c] p-6 rounded-lg shadow-lg text-white pointer-events-auto">
+          <div className="bg-[#2c2c2c] p-6 rounded-lg shadow-lg text-white pointer-events-auto transform transition-all duration-300 scale-100">
+            {" "}
+            {/* Added scale-in effect */}
             <h3 className="text-lg font-bold mb-4">Confirm Logout</h3>
             <p className="mb-4 text-yellow-300">
               Are you sure you want to log out?
@@ -231,13 +268,13 @@ function Sidebar({
             <div className="flex justify-end gap-4">
               <button
                 onClick={cancelLogout}
-                className="px-4 py-2 bg-gray-500 hover:bg-gray-600 rounded-lg"
+                className="px-4 py-2 bg-gray-500 hover:bg-gray-600 rounded-lg transition-colors duration-200" // Added smooth color transition
               >
                 Cancel
               </button>
               <button
                 onClick={confirmLogout}
-                className="px-4 py-2 bg-red-500 hover:bg-red-600 rounded-lg"
+                className="px-4 py-2 bg-red-500 hover:bg-red-600 rounded-lg transition-colors duration-200" // Added smooth color transition
               >
                 Yes
               </button>
@@ -247,17 +284,33 @@ function Sidebar({
       )}
 
       {/* Logout Button */}
-      <button
-        className={`mt-auto flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-purple-500 font-bold py-2 px-4  transition ${
-          isSidebarOpen
-            ? "w-full rounded-lg"
-            : "w-10 h-10 flex-col justify-center items-center self-center rounded-[50px] hover:from-red-600 hover:to-purple-600 transition-all duration-300 ease-in-out transform "
-        }`}
-        onClick={handleLogoutClick} // Changed to trigger confirmation
-      >
-        <LogOut size={isSidebarOpen ? 24 : 20} />
-        {isSidebarOpen && <span>Logout</span>}
-      </button>
+      <div className="relative group">
+        <button
+          className={`mt-auto flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-purple-500 hover:from-red-600 hover:to-purple-600 font-bold py-2 px-4 transition-all duration-300 ease-in-out transform hover:scale-105 ${
+            isSidebarOpen
+              ? "w-full rounded-lg"
+              : "w-10 h-10 flex-col justify-center items-center self-center rounded-[50px]"
+          }`} // Added hover scale effect
+          onClick={handleLogoutClick}
+        >
+          <LogOut size={isSidebarOpen ? 24 : 20} className="text-white" />
+          {isSidebarOpen && (
+            <span
+              className={`text-white transition-opacity duration-300 ${
+                isSidebarOpen ? "opacity-100" : "opacity-0"
+              }`} // Added fade effect for text
+            >
+              Logout
+            </span>
+          )}
+        </button>
+        {/* Tooltip for closed state */}
+        {!isSidebarOpen && (
+          <span className="absolute left-14 top-1/2 transform -translate-y-1/2 bg-gray-700 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            Logout
+          </span>
+        )}
+      </div>
     </div>
   );
 }

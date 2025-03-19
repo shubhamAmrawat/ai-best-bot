@@ -6,7 +6,8 @@ import Signup from "./components/Signup";
 import Sidebar from "./components/Sidebar";
 import ChatWindow from "./components/ChatWindow";
 import LandingPage from "./components/LandingPage";
-import { GoogleOAuthProvider } from "@react-oauth/google"; // Import GoogleOAuthProvider
+import PresentationBuilder from "./components/PresentationBuilder"; // Import the new component
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 function App() {
   const [user, setUser] = useState(() => {
@@ -55,7 +56,7 @@ function App() {
   };
 
   return (
-    <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}> {/* Wrap with GoogleOAuthProvider */}
+    <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
       <Router>
         <div className="h-screen bg-[#1a1a1a] text-white">
           <Routes>
@@ -71,7 +72,7 @@ function App() {
               path="/"
               element={
                 user ? (
-                  <LandingPage user={user} handleLogout={handleLogout} /> // Pass handleLogout
+                  <LandingPage user={user} handleLogout={handleLogout} />
                 ) : (
                   <Navigate to="/login" />
                 )
@@ -103,7 +104,7 @@ function App() {
               }
             />
             <Route
-              path="/tool-builder"
+              path="/presentation-builder"
               element={
                 user ? (
                   <div className="flex">
@@ -115,9 +116,7 @@ function App() {
                       currentChatId={currentChatId}
                       handleLogout={handleLogout}
                     />
-                    <div className="flex-1 p-4">
-                      <h1 className="text-2xl">Tool Builder (Coming Soon)</h1>
-                    </div>
+                    <PresentationBuilder />
                   </div>
                 ) : (
                   <Navigate to="/login" />
