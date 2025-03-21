@@ -105,7 +105,7 @@
   border-bottom: none; /* Removed border for cleaner look */
   padding-bottom: 0; /* Remove padding to match other paragraphs */
   color: #00ccff;
-  font-size: 1.5rem;
+  font-size: 1rem;
 }
 
 .assistant-content > p:last-of-type {
@@ -225,5 +225,36 @@
 .copy-button:disabled {
   background: #666;
   cursor: not-allowed;
+}
+
+/* New Styles for Chat Window with IDE Open */
+.chat-window-with-ide {
+  background: #1a1a1a; /* Slightly darker background for contrast */
+  /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); Subtle shadow for separation */
+}
+
+/* IDE Pane */
+.ide-pane {
+  background: #1e1e1e; /* Match StackBlitz dark theme */
+}
+
+/* Tool Builder Loader Animation */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.tool-builder-loader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tool-builder-loader .animate-spin {
+  animation: spin 1s linear infinite;
 }
 

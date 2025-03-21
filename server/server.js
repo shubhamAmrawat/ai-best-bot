@@ -11,7 +11,8 @@ const authMiddleware = require('./middleware/auth');
 const Chat = require('./models/Chat');
 const { OpenAI } = require('openai');
 const { customsearch } = require('@googleapis/customsearch');
-const { OAuth2Client } = require('google-auth-library'); // Added for Google OAuth
+const { OAuth2Client } = require('google-auth-library');
+const { generateProject } = require('./services/toolbuilder');
 
 const app = express();
 const server = http.createServer(app);
@@ -23,9 +24,15 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY || 'your-openai-api-key';
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 const GOOGLE_CSE_ID = process.env.GOOGLE_CSE_ID;
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID; // Added for Google OAuth
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const ASSISTANT_ID = process.env.ASSISTANT_ID; // Use the ASSISTANT_ID from .env
 
-const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID); // Initialize Google OAuth2 client
+if (!ASSISTANT_ID) {
+  console.error('ASSISTANT_ID is not set in environment variables');
+  process.exit(1); // Exit the process if ASSISTANT_ID is not set
+}
+
+const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 app.use(cors({ origin: 'http://localhost:3000' }));
 app.use(express.json());
@@ -34,16 +41,12 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/chat', authMiddleware, chatRoutes);
 
-// New Google OAuth Endpoints
-const User = require('./models/User'); // Assuming you have a User model
-
 // Google Login Endpoint
 app.post('/api/auth/google-login', async (req, res) => {
   try {
     const { token } = req.body;
     if (!token) return res.status(400).json({ error: 'No token provided' });
 
-    // Verify the Google ID token
     const ticket = await googleClient.verifyIdToken({
       idToken: token,
       audience: GOOGLE_CLIENT_ID,
@@ -51,23 +54,19 @@ app.post('/api/auth/google-login', async (req, res) => {
     const payload = ticket.getPayload();
     const { email, sub: googleId, name } = payload;
 
-    // Check if user exists, or create a new one
     let user = await User.findOne({ email });
     if (!user) {
-      // If user doesn't exist, create a new user
       user = new User({
-        username: name.split(" ")[0].toLowerCase() + Math.floor(Math.random() * 1000), // Generate a unique username
+        username: name.split(" ")[0].toLowerCase() + Math.floor(Math.random() * 1000),
         email,
         googleId,
       });
       await user.save();
     } else if (!user.googleId) {
-      // If user exists but wasn't linked to Google, link the Google ID
       user.googleId = googleId;
       await user.save();
     }
 
-    // Generate JWT token for the user
     const jwtToken = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1h' });
     res.json({ token: jwtToken, username: user.username });
   } catch (error) {
@@ -82,7 +81,6 @@ app.post('/api/auth/google-signup', async (req, res) => {
     const { token } = req.body;
     if (!token) return res.status(400).json({ error: 'No token provided' });
 
-    // Verify the Google ID token
     const ticket = await googleClient.verifyIdToken({
       idToken: token,
       audience: GOOGLE_CLIENT_ID,
@@ -90,21 +88,18 @@ app.post('/api/auth/google-signup', async (req, res) => {
     const payload = ticket.getPayload();
     const { email, sub: googleId, name } = payload;
 
-    // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ error: 'User with this email already exists' });
     }
 
-    // Create a new user
     const user = new User({
-      username: name.split(" ")[0].toLowerCase() + Math.floor(Math.random() * 1000), // Generate a unique username
+      username: name.split(" ")[0].toLowerCase() + Math.floor(Math.random() * 1000),
       email,
       googleId,
     });
     await user.save();
 
-    // Generate JWT token for the user
     const jwtToken = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1h' });
     res.json({ token: jwtToken, username: user.username });
   } catch (error) {
@@ -132,21 +127,6 @@ io.use((socket, next) => {
 });
 
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
-let assistantId;
-
-(async () => {
-  try {
-    const assistant = await openai.beta.assistants.create({
-      name: 'AI Bot Assistant',
-      instructions: 'You are a helpful AI assistant. Provide accurate and concise answers.',
-      model: 'gpt-4o',
-    });
-    assistantId = assistant.id;
-    console.log('Assistant created with ID:', assistantId);
-  } catch (error) {
-    console.error('Error creating assistant:', error.message);
-  }
-})();
 
 const googleSearchClient = customsearch('v1');
 
@@ -178,7 +158,7 @@ io.on('connection', (socket) => {
       await chat.save();
 
       const run = await openai.beta.threads.runs.create(threadId, {
-        assistant_id: assistantId,
+        assistant_id: ASSISTANT_ID, // Use the ASSISTANT_ID from .env
         stream: true,
       });
 
@@ -208,17 +188,15 @@ io.on('connection', (socket) => {
       const chat = await Chat.findOne({ _id: chatId, userId: socket.userId });
       if (!chat) throw new Error('Chat not found or unauthorized');
 
-      // Set the chat title if this is the first message
       if (chat.messages.length === 0) {
         chat.title = (query.charAt(0).toUpperCase() + query.slice(1)).substring(0, 20) + ' ...';
       }
 
-      // Perform Google Search
       const response = await googleSearchClient.cse.list({
         auth: GOOGLE_API_KEY,
         cx: GOOGLE_CSE_ID,
         q: query,
-        num: 10, // Get top 10 results
+        num: 10,
       });
 
       const searchResults = response.data.items?.map((item) => ({
@@ -227,7 +205,6 @@ io.on('connection', (socket) => {
         snippet: item.snippet,
       })) || [];
 
-      // Format the search results with HTML for better styling
       let resultContent = '<div class="search-results">';
       resultContent += `<h3 class="search-title">Internet Search Results for "${query}"</h3>`;
       resultContent += '<ul class="result-list">';
@@ -242,13 +219,11 @@ io.on('connection', (socket) => {
       });
       resultContent += '</ul></div>';
 
-      // Save the query and results to the chat
       chat.messages.push({ role: 'user', content: query });
       chat.messages.push({ role: 'internet', content: resultContent });
       chat.updatedAt = new Date();
       await chat.save();
 
-      // Emit the search results back to the client
       socket.emit('internet-search-response', { chatId, content: resultContent });
       socket.emit('end', { chatId });
     } catch (error) {
@@ -257,6 +232,42 @@ io.on('connection', (socket) => {
       socket.emit('end', { chatId });
     }
   });
+
+  socket.on('tool-build', async ({ chatId, prompt, previousCode }) => {
+    try {
+      const chat = await Chat.findOne({ _id: chatId, userId: socket.userId });
+      if (!chat) throw new Error('Chat not found or unauthorized');
+
+      if (chat.messages.length === 0) {
+        chat.title = (prompt.charAt(0).toUpperCase() + prompt.slice(1)).substring(0, 20) + ' ...';
+      }
+
+      chat.messages.push({ role: 'user', content: prompt });
+      chat.updatedAt = new Date();
+      await chat.save();
+
+      const project = await generateProject(prompt, previousCode);
+
+      console.log('Emitting project:', project);
+      console.log('Is project.files an object?', typeof project.files === 'object' && !Array.isArray(project.files));
+
+      socket.emit('tool-build', { chatId, project });
+
+      chat.messages.push({
+        role: 'assistant',
+        content: `I've generated the project "${project.name}" for you. You can now edit the code and preview the result in the StackBlitz IDE.`,
+        project,
+      });
+      await chat.save();
+
+      socket.emit('end', { chatId });
+    } catch (error) {
+      console.error('Tool build error:', error.message);
+      socket.emit('tool-build', { chatId, error: error.message });
+      socket.emit('end', { chatId });
+    }
+  });
+ 
 
   socket.on('disconnect', () => console.log('Client disconnected'));
 });

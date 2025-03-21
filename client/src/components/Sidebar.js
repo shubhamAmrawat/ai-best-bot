@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Menu, PlusCircle, LogOut, Trash2, Home, PanelRightOpen, PanelRightOpenIcon, PanelRightCloseIcon } from "lucide-react";
+import {
+  PlusCircle,
+  LogOut,
+  Trash2,
+  Home,
+  PanelRightOpenIcon,
+  PanelRightCloseIcon,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 function Sidebar({
@@ -228,10 +235,8 @@ function Sidebar({
 
       {/* Delete Confirmation Dialog */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[1000] pointer-events-none">
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center confirmation-modal pointer-events-none">
           <div className="bg-[#2c2c2c] p-6 rounded-lg shadow-lg text-white pointer-events-auto transform transition-all duration-300 scale-100">
-            {" "}
-            {/* Added scale-in effect */}
             <h3 className="text-lg font-bold mb-4">Confirm Delete</h3>
             <p className="mb-4">
               Are you sure you want to delete this chat? This action cannot be
@@ -240,13 +245,13 @@ function Sidebar({
             <div className="flex justify-end gap-4">
               <button
                 onClick={cancelDeleteChat}
-                className="px-4 py-2 bg-gray-500 hover:bg-gray-600 rounded-lg transition-colors duration-200" // Added smooth color transition
+                className="px-4 py-2 bg-gray-500 hover:bg-gray-600 rounded-lg transition-colors duration-200"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmDeleteChat}
-                className="px-4 py-2 bg-red-500 hover:bg-red-600 rounded-lg transition-colors duration-200" // Added smooth color transition
+                className="px-4 py-2 bg-red-500 hover:bg-red-600 rounded-lg transition-colors duration-200"
               >
                 Delete
               </button>
@@ -257,10 +262,8 @@ function Sidebar({
 
       {/* Logout Confirmation Dialog */}
       {showLogoutConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[1000] pointer-events-none">
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center confirmation-modal pointer-events-none">
           <div className="bg-[#2c2c2c] p-6 rounded-lg shadow-lg text-white pointer-events-auto transform transition-all duration-300 scale-100">
-            {" "}
-            {/* Added scale-in effect */}
             <h3 className="text-lg font-bold mb-4">Confirm Logout</h3>
             <p className="mb-4 text-yellow-300">
               Are you sure you want to log out?
@@ -268,13 +271,13 @@ function Sidebar({
             <div className="flex justify-end gap-4">
               <button
                 onClick={cancelLogout}
-                className="px-4 py-2 bg-gray-500 hover:bg-gray-600 rounded-lg transition-colors duration-200" // Added smooth color transition
+                className="px-4 py-2 bg-gray-500 hover:bg-gray-600 rounded-lg transition-colors duration-200"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmLogout}
-                className="px-4 py-2 bg-red-500 hover:bg-red-600 rounded-lg transition-colors duration-200" // Added smooth color transition
+                className="px-4 py-2 bg-red-500 hover:bg-red-600 rounded-lg transition-colors duration-200"
               >
                 Yes
               </button>

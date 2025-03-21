@@ -95,6 +95,7 @@ function App() {
                       chatId={currentChatId}
                       setCurrentChatId={setCurrentChatId}
                       isSidebarOpen={isSidebarOpen}
+                      setIsSidebarOpen={setIsSidebarOpen} // Added the missing prop
                       user={user}
                     />
                   </div>
