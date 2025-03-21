@@ -288,7 +288,7 @@ function ChatWindow({
         clearTimeout(embedTimeoutRef.current);
       }
     };
-  }, [project, isToolBuilderVisible]);
+  }, [project, isToolBuilderVisible,]);
 
   // Auto-scroll to the bottom of messages
   useEffect(() => {

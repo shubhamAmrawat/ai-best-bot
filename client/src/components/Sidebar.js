@@ -125,9 +125,10 @@ function Sidebar({
 
   return (
     <div
-      className={`fixed h-full bg-[#1e1e1e] border-r border-gray-500 transition-all duration-500 ease-in-out flex flex-col ${
+      className={`fixed h-full bg-[#1e1e1e] border-r border-gray-700 transition-all duration-500 ease-in-out flex flex-col ${
         isSidebarOpen ? "w-64 p-4" : "w-14 p-2"
-      }`} // Kept original sizes, improved transition duration and easing
+      }`}
+      style={{ zIndex: 1 }} // Set a low z-index to ensure dialogs can overlay
     >
       {/* Toggle Button */}
       <div
@@ -135,11 +136,11 @@ function Sidebar({
           isSidebarOpen
             ? "justify-between"
             : "flex-col justify-center items-center"
-        }`} // Improved transition
+        }`}
       >
         <div className="relative group">
           <button
-            className="p-2 rounded-full bg-gradient-to-r from-red-500 to-purple-500 hover:from-red-600 hover:to-purple-600 transition-all duration-300 ease-in-out transform hover:scale-105" // Added hover scale effect
+            className="p-2 rounded-full bg-gradient-to-r from-red-500 to-purple-500 hover:from-red-600 hover:to-purple-600 transition-all duration-300 ease-in-out transform hover:scale-105"
             onClick={toggleSidebar}
           >
             {isSidebarOpen ? (
@@ -148,7 +149,6 @@ function Sidebar({
               <PanelRightCloseIcon size={24} className="text-white" />
             )}
           </button>
-          {/* Tooltip for closed state */}
           {!isSidebarOpen && (
             <span className="absolute left-14 top-1/2 transform -translate-y-1/2 bg-gray-700 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               Toggle Sidebar
@@ -156,17 +156,15 @@ function Sidebar({
           )}
         </div>
 
-        {/* Home Icon */}
         <div className="relative group">
           <button
             className={`p-2 rounded-full bg-gradient-to-r from-red-500 to-purple-500 hover:from-red-600 hover:to-purple-600 transition-all duration-300 ease-in-out transform hover:scale-105 ${
               isSidebarOpen ? "w-10 h-10 mt-0" : "w-10 h-10 mt-2"
-            }`} // Added hover scale effect
+            }`}
             onClick={goToLandingPage}
           >
             <Home size={24} className="text-white" />
           </button>
-          {/* Tooltip for closed state */}
           {!isSidebarOpen && (
             <span className="absolute left-14 top-1/2 transform -translate-y-1/2 bg-gray-700 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               Home
@@ -182,7 +180,7 @@ function Sidebar({
             isSidebarOpen
               ? "w-full rounded-lg"
               : "w-10 h-10 flex-col justify-center items-center self-center rounded-[50px]"
-          }`} // Added hover scale effect
+          }`}
           onClick={createNewChat}
         >
           <PlusCircle size={isSidebarOpen ? 24 : 22} className="text-white" />
@@ -190,13 +188,12 @@ function Sidebar({
             <span
               className={`text-white transition-opacity duration-300 ${
                 isSidebarOpen ? "opacity-100" : "opacity-0"
-              }`} // Added fade effect for text
+              }`}
             >
               New Chat
             </span>
           )}
         </button>
-        {/* Tooltip for closed state */}
         {!isSidebarOpen && (
           <span className="absolute left-14 top-1/2 transform -translate-y-1/2 bg-gray-700 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             New Chat
@@ -208,7 +205,7 @@ function Sidebar({
       <div
         className={`mt-8 space-y-4 flex-1 overflow-auto transition-opacity duration-500 ease-in-out ${
           isSidebarOpen ? "opacity-100" : "opacity-0 h-0"
-        }`} // Added fade effect for chat list
+        }`}
       >
         {isSidebarOpen &&
           chats.map((chat) => (
@@ -218,14 +215,14 @@ function Sidebar({
                 currentChatId === chat._id
                   ? "bg-[#3d3c3c] text-white"
                   : "hover:bg-[#494747] text-gray-300"
-              }`} // Improved transition for hover/active states
+              }`}
             >
               <span onClick={() => selectChat(chat._id)} className="flex-1">
                 {chat.title || `Chat ${chat._id.slice(0, 6)}`}
               </span>
               <button
                 onClick={() => handleDeleteChat(chat._id)}
-                className="text-red-400 hover:text-red-600 transition-colors duration-200" // Added smooth color transition
+                className="text-red-400 hover:text-red-600 transition-colors duration-200"
               >
                 <Trash2 size={16} />
               </button>
@@ -293,7 +290,7 @@ function Sidebar({
             isSidebarOpen
               ? "w-full rounded-lg"
               : "w-10 h-10 flex-col justify-center items-center self-center rounded-[50px]"
-          }`} // Added hover scale effect
+          }`}
           onClick={handleLogoutClick}
         >
           <LogOut size={isSidebarOpen ? 24 : 20} className="text-white" />
@@ -301,13 +298,12 @@ function Sidebar({
             <span
               className={`text-white transition-opacity duration-300 ${
                 isSidebarOpen ? "opacity-100" : "opacity-0"
-              }`} // Added fade effect for text
+              }`}
             >
               Logout
             </span>
           )}
         </button>
-        {/* Tooltip for closed state */}
         {!isSidebarOpen && (
           <span className="absolute left-14 top-1/2 transform -translate-y-1/2 bg-gray-700 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             Logout

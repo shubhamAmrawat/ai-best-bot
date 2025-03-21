@@ -258,3 +258,12 @@
   animation: spin 1s linear infinite;
 }
 
+/* Ensure confirmation dialogs appear above everything */
+.confirmation-modal {
+  z-index: 1000 !important;
+}
+
+/* Ensure the sidebar's children don't interfere with the dialogs */
+.sidebar-container {
+  z-index: 1 !important;
+}
