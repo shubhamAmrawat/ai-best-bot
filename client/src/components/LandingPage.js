@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LogOut } from "lucide-react";
-import PresentationBuilder from "./PresentationBuilder"; // Import for rendering on the landing page
+import PresentationBuilder from "./PresentationBuilder/PresentationBuilder"; // Import for rendering on the landing page
 
 import "./LandingPage.css";
 

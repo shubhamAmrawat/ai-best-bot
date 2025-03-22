@@ -517,7 +517,7 @@ function ChatWindow({
 
   return (
     <div
-      className={`flex h-screen transition-all duration-300 ${
+      className={`flex h-screen  transition-all duration-300 ${
         isSidebarOpen ? "ml-64" : "ml-16"
       } p-4 flex-1 overflow-hidden`}
     >
@@ -525,7 +525,7 @@ function ChatWindow({
         className={`flex flex-col transition-all duration-300 ease-in-out ${
           project && isToolBuilderVisible
             ? "w-2/5 pr-4 chat-window-with-ide"
-            : "w-full"
+            : "w-[70%] mx-auto "
         }`}
       >
         <div className="flex justify-end items-center mb-4">

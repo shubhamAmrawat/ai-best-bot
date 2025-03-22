@@ -6,7 +6,7 @@ import Signup from "./components/Signup";
 import Sidebar from "./components/Sidebar";
 import ChatWindow from "./components/ChatWindow";
 import LandingPage from "./components/LandingPage";
-import PresentationBuilder from "./components/PresentationBuilder"; // Import the new component
+import PresentationBuilder from "./components/PresentationBuilder/PresentationBuilder"; // Import the new component
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
 function App() {
@@ -109,14 +109,7 @@ function App() {
               element={
                 user ? (
                   <div className="flex">
-                    <Sidebar
-                      user={user}
-                      isSidebarOpen={isSidebarOpen}
-                      setIsSidebarOpen={setIsSidebarOpen}
-                      setCurrentChatId={setCurrentChatId}
-                      currentChatId={currentChatId}
-                      handleLogout={handleLogout}
-                    />
+
                     <PresentationBuilder />
                   </div>
                 ) : (

@@ -13,6 +13,7 @@ const { OpenAI } = require('openai');
 const { customsearch } = require('@googleapis/customsearch');
 const { OAuth2Client } = require('google-auth-library');
 const { generateProject } = require('./services/toolbuilder');
+const presentationRoutes = require("./routes/presentations"); // Add this
 
 const app = express();
 const server = http.createServer(app);
@@ -40,6 +41,7 @@ app.use(express.json());
 // Mount existing routes
 app.use('/api/auth', authRoutes);
 app.use('/api/chat', authMiddleware, chatRoutes);
+app.use("/api/presentations", authMiddleware, presentationRoutes);
 
 // Google Login Endpoint
 app.post('/api/auth/google-login', async (req, res) => {
@@ -196,7 +198,7 @@ io.on('connection', (socket) => {
         auth: GOOGLE_API_KEY,
         cx: GOOGLE_CSE_ID,
         q: query,
-        num: 10,
+        num: 5,
       });
 
       const searchResults = response.data.items?.map((item) => ({
