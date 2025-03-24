@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 import axios from "axios";
-import { Rocket, Globe, Code, X, Eye, Wrench, Code2Icon } from "lucide-react";
+import { Rocket, Globe, X, Eye, Wrench, Code2Icon } from "lucide-react";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
@@ -288,6 +288,7 @@ function ChatWindow({
         clearTimeout(embedTimeoutRef.current);
       }
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [project, isToolBuilderVisible]);
 
   // Auto-scroll to the bottom of messages
@@ -479,7 +480,9 @@ function ChatWindow({
               onClick={() => reopenIDE(message.project)}
               className="mt-2 p-2 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center gap-2 transition-all duration-300"
             >
-              <Eye size={20} />
+            <Eye size={20} />
+            
+            
               Reopen Tool Builder
             </button>
           )}
