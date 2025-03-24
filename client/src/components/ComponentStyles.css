@@ -24,9 +24,9 @@
 .internet-response {
   /* background-color: #2a2a2a; Dark background to differentiate */
   border-radius: 3px; /* Rounded corners */
-  padding: 1.5rem; /* Improved padding */
+  padding: 1rem; /* Improved padding */
   /* margin: 0.5rem 0; Vertical spacing */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Subtle shadow for depth */
+
 }
 
 .search-title {
@@ -45,9 +45,14 @@
   margin-bottom: 1rem;
   border-bottom: 2px solid rgb(64, 63, 63);
   padding: 1rem; /* Padding within each result item */
-  background-color: #333; /* Slightly lighter background for items */
-  border-left: 4px solid #22C55E; /* Distinct left border */
+ 
+  
   border-radius: 4px;
+  backdrop-filter: blur(4px); /* Equivalent to backdrop-blur-sm */
+    background-color: rgba(255, 255, 255, 0.05); /* Equivalent to bg-white/5 */
+    border-radius: 1rem; /* Equivalent to rounded-2xl (16px) */
+    border-bottom: 1px solid rgba(5, 255, 5, 0.5); /* Equivalent to border-gray-700/50 */
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Equivalent to shadow-xl */
 }
 
 .result-heading {
@@ -77,14 +82,10 @@
 
 /* Assistant response styles */
 .assistant-response {
-  /* background-color: #2c2c2c; Dark background for contrast */
-  border-radius: 12px; /* Slightly larger border-radius for a softer look */
-  padding: 1rem; /* Consistent padding */
-  /* margin: 1rem 0; Increased margin for better separation between responses */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4); /* Slightly stronger shadow for depth */
+  padding: 10px;  
   position: relative;
-  max-width: 100%; /* Ensure it doesn't overflow on smaller screens */
-  word-wrap: break-word; /* Prevent text overflow */
+  max-width: 100%; 
+  word-wrap: break-word;
 }
 
 /* Main content container */
@@ -198,7 +199,10 @@
 }
 
 .assistant-content th {
-  background-color: #3a3a3a;
+  backdrop-filter: blur(4px); 
+  background-color: rgba(255, 255, 255, 0.1);
+
+  
   font-weight: 600;
 }
 
@@ -230,13 +234,15 @@
 
 /* New Styles for Chat Window with IDE Open */
 .chat-window-with-ide {
-  background: #1a1a1a; /* Slightly darker background for contrast */
-  /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); Subtle shadow for separation */
 }
 
 /* IDE Pane */
 .ide-pane {
-  background: #1e1e1e; /* Match StackBlitz dark theme */
+  backdrop-filter: blur(4px);
+    background-color: rgba(255, 255, 255, 0.01); 
+    padding: 5px;
+    border-radius: 5px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); 
 }
 
 /* Tool Builder Loader Animation */

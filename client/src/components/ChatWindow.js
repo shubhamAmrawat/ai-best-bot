@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 import axios from "axios";
-import { Rocket, Globe, Code, X, Eye, Wrench } from "lucide-react";
+import { Rocket, Globe, Code, X, Eye, Wrench, Code2Icon } from "lucide-react";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
@@ -288,7 +288,7 @@ function ChatWindow({
         clearTimeout(embedTimeoutRef.current);
       }
     };
-  }, [project, isToolBuilderVisible,]);
+  }, [project, isToolBuilderVisible]);
 
   // Auto-scroll to the bottom of messages
   useEffect(() => {
@@ -531,9 +531,9 @@ function ChatWindow({
         <div className="flex justify-end items-center mb-4">
           <div className="flex items-center gap-2">
             <span className="text-white font-bold text-[22px]">
-              {user.username}
+              {user.username.charAt(0).toUpperCase() + user.username.slice(1)}
             </span>
-            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-red-500 to-purple-500 flex items-center justify-center text-white font-bold text-xl">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl">
               {avatarLetter}
             </div>
           </div>
@@ -552,9 +552,9 @@ function ChatWindow({
             messages.map((msg, index) => (
               <div
                 key={index}
-                className={`bg-[#323232] p-3 rounded-lg w-fit transition-all duration-200 ${
+                className={`backdrop-blur-sm bg-white/5   shadow-xl  p-3 rounded-lg w-fit transition-all duration-200 ${
                   msg.role === "user"
-                    ? "border-b border-blue-500 text-white ml-auto"
+                    ? "border-b border-blue-500 px-4 text-white ml-auto"
                     : msg.role === "internet"
                     ? `border-b border-green-500 text-white ${
                         project && isToolBuilderVisible
@@ -589,63 +589,70 @@ function ChatWindow({
           )}
         </div>
 
-        <div className="flex items-center mt-4 border-gray-700 border rounded-[15px] p-2 px-5">
-          <button
-            onClick={toggleSearchMode}
-            className={`p-2 rounded-full mr-2 transition ${
-              isInternetSearchMode
-                ? "bg-green-500 text-white animate-pulse"
-                : "bg-blue-500 text-white hover:bg-blue-400"
-            }`}
-            title={
-              isInternetSearchMode
-                ? "Switch to Assistant Mode"
-                : "Switch to Internet Search Mode"
-            }
-          >
-            <Globe size={25} />
-          </button>
-          <button
-            onClick={toggleToolBuilderMode}
-            className={`p-2 rounded-full mr-2 transition ${
-              isToolBuilderMode
-                ? "bg-purple-500 text-white animate-pulse"
-                : "bg-blue-500 text-white hover:bg-blue-400"
-            }`}
-            title={
-              isToolBuilderMode
-                ? "Switch to Assistant Mode"
-                : "Switch to Tool Builder Mode"
-            }
-          >
-            <Code size={25} />
-          </button>
-          <input
-            type="text"
-            className="flex-1 bg-transparent text-white outline-none px-3 py-2"
-            placeholder={
-              isInternetSearchMode
-                ? "Search the internet..."
-                : isToolBuilderMode
-                ? "Build a tool (e.g., 'build a calculator app')..."
-                : "Type a message..."
-            }
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={handleKeyPress}
-            disabled={isLoading}
-          />
-          <button
-            onClick={sendMessage}
-            className={`p-2 rounded-full transition ${
-              isLoading
-                ? "bg-gray-500 opacity-50 cursor-not-allowed"
-                : "bg-gradient-to-r from-red-500 to-purple-500 hover:bg-white"
-            }`}
-            disabled={isLoading}
-          >
-            <Rocket size={25} />
-          </button>
+        <div className="flex flex-col  gap-2 items-start mt-4 border-gray-700 border rounded-[15px] p-2 px-5">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={toggleSearchMode}
+              className={`p-2 px-4 w-[120px] rounded-full flex items-center gap-2  transition ${
+                isInternetSearchMode
+                  ? "bg-gradient-to-r from-green-400 to-teal-500 text-white shadow-md hover:shadow-lg animate-pulse"
+                  : "backdrop-blur-sm  rounded-2xl border border-gray-700/50 shadow-xl text-white hover:bg-white/5 "
+              }`}
+              title={
+                isInternetSearchMode
+                  ? "Switch to Assistant Mode"
+                  : "Switch to Internet Search Mode"
+              }
+            >
+              <Globe size={20} />
+              <span>Internet</span>
+            </button>
+            <button
+              onClick={toggleToolBuilderMode}
+              className={`p-2 rounded-full px-4 w-[120px] flex items-center gap-2  transition ${
+                isToolBuilderMode
+                  ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md hover:shadow-lg animate-pulse"
+                  : "backdrop-blur-sm  rounded-2xl border border-gray-700/50 shadow-xl text-white hover:bg-white/5 "
+              }`}
+              title={
+                isToolBuilderMode
+                  ? "Switch to Assistant Mode"
+                  : "Switch to Tool Builder Mode"
+              }
+            >
+              <Code2Icon size={20} />
+              <span>Build</span>
+            </button>
+          </div>
+
+          <div className="flex  w-[100%]">
+            <input
+              type="text"
+              className="flex-1 bg-transparent text-white outline-none px-3 py-2"
+              placeholder={
+                isInternetSearchMode
+                  ? "Search the internet..."
+                  : isToolBuilderMode
+                  ? "Build a tool (e.g., 'build a calculator app')..."
+                  : "Type a message..."
+              }
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+              disabled={isLoading}
+            />
+            <button
+              onClick={sendMessage}
+              className={`p-2 rounded-full transition ${
+                isLoading
+                  ? "bg-gray-500 opacity-50 cursor-not-allowed"
+                  : "bg-gradient-to-r from-red-500 to-purple-500 hover:bg-white"
+              }`}
+              disabled={isLoading}
+            >
+              <Rocket size={25} />
+            </button>
+          </div>
         </div>
       </div>
 

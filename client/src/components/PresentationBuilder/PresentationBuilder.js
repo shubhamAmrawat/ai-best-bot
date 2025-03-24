@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import PresentationPreview from "./PresentationPreview";
-import { MoveLeftIcon } from "lucide-react";
+import { LogOut, MoveLeftIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import PptxGenJS from "pptxgenjs"; // Import pptxgenjs
 
-const PresentationBuilder = ({ user }) => {
+const PresentationBuilder = ({ user, handleLogout }) => {
   const avatarLetter = user.username.charAt(0).toUpperCase();
   const [topic, setTopic] = useState("");
   const [additionalInfo, setAdditionalInfo] = useState("");
@@ -15,6 +15,7 @@ const PresentationBuilder = ({ user }) => {
   const [isSaving, setIsSaving] = useState(false); // Add loading state for saving
   const [presentationTitle, setPresentationTitle] = useState("");
   const [activeTab, setActiveTab] = useState("create");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [pastPresentations, setPastPresentations] = useState([]); // Still needed for rendering
   const navigate = useNavigate();
 
@@ -80,6 +81,9 @@ const PresentationBuilder = ({ user }) => {
       text: "FFFFFF",
       accent: "78909C",
     },
+  };
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
   };
 
   // Fetch past presentations from the backend
@@ -292,24 +296,32 @@ const PresentationBuilder = ({ user }) => {
     <div className="min-h-screen w-full bg-gradient-to-br from-slate-900 via-indigo-950 to-black text-white overflow-auto">
       {/* Header and User Profile */}
       <div className="container mx-auto px-4 py-6">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <svg
-              class
-              name="w-8 h-8 text-purple-400"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
+        <div className="flex justify-end items-center">
+          <div className="relative">
+            <div
+              className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl cursor-pointer"
+              onClick={toggleDropdown}
             >
-              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
-            </svg>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <span className="font-medium text-gray-300">{user.username}</span>
-            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-purple-500/20">
               {avatarLetter}
             </div>
+            {isDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-[#323232] border border-gray-500 rounded-lg shadow-lg z-30">
+                <div className="p-2 text-white text-center border-b border-gray-500">
+                  {user.username.charAt(0).toUpperCase() +
+                    user.username.slice(1)}
+                </div>
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setIsDropdownOpen(false);
+                  }}
+                  className="w-full flex items-center gap-2 p-2 text-white hover:bg-[#494747] rounded-b-lg transition"
+                >
+                  <LogOut size={20} />
+                  <span>Logout</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -712,13 +724,17 @@ const PresentationBuilder = ({ user }) => {
                 ))}
               </div>
             ) : (
-              <div className="backdrop-blur-sm bg-white/5 rounded-xl border border-gray-700/50 p-8 text-center">
+              <div
+                className="backdrop-blur-sm bg-white/5 rounded-xl border border-gray-700/50 p-8 text-center"
+                onClick={() => setActiveTab("create")}
+              >
                 <svg
-                  className="w-16 h-16 text-gray-600 mx-auto mb-4"
+                  className="w-16 h-16 text-gray-600 mx-auto mb-4 cursor-pointer"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
+                  onClick={() => setActiveTab("create")}
                 >
                   <path
                     strokeLinecap="round"

@@ -58,7 +58,7 @@ function App() {
   return (
     <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
       <Router>
-        <div className="h-screen bg-[#1a1a1a] text-white">
+        <div className="h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-black text-white">
           <Routes>
             <Route
               path="/login"
@@ -110,7 +110,7 @@ function App() {
                 user ? (
                   <div className="flex">
 
-                    <PresentationBuilder user={user} />
+                    <PresentationBuilder user={user} handleLogout={handleLogout} />
                   </div>
                 ) : (
                   <Navigate to="/login" />

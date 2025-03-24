@@ -44,7 +44,7 @@ function LandingPage({ user, handleLogout }) {
           {isDropdownOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-[#323232] border border-gray-500 rounded-lg shadow-lg z-30">
               <div className="p-2 text-white text-center border-b border-gray-500">
-                {user.username}
+                {user.username.charAt(0).toUpperCase() + user.username.slice(1)}
               </div>
               <button
                 onClick={() => {
@@ -66,7 +66,7 @@ function LandingPage({ user, handleLogout }) {
         <h1 className="text-4xl font-bold mb-12">
           Welcome,
           <span className="bg-gradient-to-l from-[#9c66dd] to-[#E91E63] bg-clip-text text-transparent">
-            {user.username}!
+            {user.username.charAt(0).toUpperCase() + user.username.slice(1)}!
           </span>
         </h1>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-3xl">
