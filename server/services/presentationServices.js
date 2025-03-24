@@ -1,95 +1,127 @@
 const { OpenAI } = require("openai");
+const Presentation = require("../models/Presentation"); // Import the Presentation model
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-async function generatePresentation({ topic, numSlides, outline }) {
-  const textPrompt = `
-    You are a world-class presentation designer with a knack for creativity and storytelling. Create a high-quality, engaging, and professional presentation on the topic "${topic}".
+async function generatePresentation({ userId, topic, numSlides, outline, theme }) {
+  // Define the Assistant ID (replace with your Assistant's ID)
+  const assistantId = process.env.PRESENTATION_ASSISTANT_ID; // Use the actual assistant_id
+
+  // Create a thread for the conversation
+  let thread;
+  try {
+    thread = await openai.beta.threads.create();
+    console.log("Thread created with ID:", thread.id);
+  } catch (error) {
+    console.error("Failed to create thread:", error.message);
+    throw new Error(`Failed to create thread: ${error.message}`);
+  }
+
+  // Construct the user message with dynamic input
+  const userMessage = `
+    Create a high-quality, engaging, and professional presentation on the topic "${topic}".
     ${numSlides && numSlides > 0
       ? `The presentation must have exactly ${numSlides} slides.`
       : "The presentation should have a reasonable number of slides (between 5 and 10)."
     }
     ${outline && outline.trim()
       ? `Use the following outline to structure the presentation: ${outline}`
-      : "Create a logical and compelling structure for the presentation, starting with an attention-grabbing title slide, followed by a mix of content slides (e.g., informational, data-driven, or quote slides), and ending with a memorable conclusion slide."
+      : "Create a logical and compelling structure for the presentation."
     }
-    For each slide, provide:
-    - A concise, captivating title (5-10 words) that grabs attention
-    - A subtitle (3-8 words) that summarizes the slide's focus
-    - A list of 3-5 detailed bullet points (each 15-25 words), blending facts, storytelling, examples, data points, or actionable insights to make the content engaging, informative, and professional
-    - A description of a visual element (e.g., "A vibrant festival scene in India", "A serene Himalayan landscape") to complement the slide's content
-    - Presenter notes (50-100 words) to guide the speaker on what to say during the slide, including context, transitions, or key points to emphasize
-    Additionally, provide a "themeSuggestion" field at the root level to suggest a visual theme for the presentation (e.g., "modern blue", "vibrant orange", "minimalist white").
-    Return the result as a JSON object with a "themeSuggestion" field and an array of slides, where each slide has a "title", "subtitle", "content" array, "visualDescription", and "notes" field.
-    Example format:
-    {
-      "themeSuggestion": "modern blue",
-      "slides": [
-        {
-          "title": "Welcome to Incredible India",
-          "subtitle": "A Journey of Diversity",
-          "content": [
-            "India: a mosaic of 1.4 billion stories and cultures.",
-            "From Himalayan peaks to Kerala's backwaters, diversity thrives.",
-            "Ancient traditions meet modern innovation in perfect harmony."
-          ],
-          "visualDescription": "A vibrant collage of Indian culture and landscapes",
-          "notes": "Start with a warm welcome, briefly introduce India's diversity, and set the tone for an exciting journey through the presentation."
-        },
-        {
-          "title": "Festivals That Unite",
-          "subtitle": "Celebrating Joy Across India",
-          "content": [
-            "Diwali lights up homes with joy and togetherness.",
-            "Holi paints streets in colors of love and unity.",
-            "Eid and Christmas reflect India's interfaith harmony."
-          ],
-          "visualDescription": "A colorful Holi festival celebration with people throwing colors",
-          "notes": "Highlight the cultural significance of these festivals, share a personal anecdote if possible, and transition to the next topic."
-        }
-      ]
-    }
-    Ensure the response is a valid JSON string without any markdown formatting (e.g., do not wrap the JSON in \`\`\`json ... \`\`\`).
+    The user has selected the theme "${theme}", but do not include a theme suggestion in the response.
   `;
 
-  let presentation;
+  // Add the user message to the thread
   try {
-    console.log("Generating presentation content for topic:", topic);
-    const textResponse = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        { role: "system", content: "You are a world-class presentation designer with a knack for creativity and storytelling." },
-        { role: "user", content: textPrompt },
-      ],
-      max_tokens: 2500, // Increased to accommodate notes and theme suggestion
+    await openai.beta.threads.messages.create(thread.id, {
+      role: "user",
+      content: userMessage,
+    });
+    console.log("User message added to thread:", userMessage);
+  } catch (error) {
+    console.error("Failed to add message to thread:", error.message);
+    throw new Error(`Failed to add message to thread: ${error.message}`);
+  }
+
+  // Run the Assistant on the thread
+  let run;
+  try {
+    run = await openai.beta.threads.runs.create(thread.id, {
+      assistant_id: assistantId,
+      max_completion_tokens: 2500,
       temperature: 0.8,
     });
-
-    let rawContent = textResponse.choices[0].message.content;
-    console.log("Raw OpenAI text response:", rawContent);
-
-    // Strip markdown code block if present (e.g., ```json ... ```)
-    rawContent = rawContent.replace(/^```json\s*/, "").replace(/\s*```$/, "").trim();
-
-    try {
-      presentation = JSON.parse(rawContent);
-    } catch (parseError) {
-      console.error("Failed to parse OpenAI response as JSON:", parseError.message);
-      console.error("Raw content:", rawContent);
-      throw new Error("Invalid response format from OpenAI. Expected JSON.");
-    }
-
-    if (!presentation.slides || !Array.isArray(presentation.slides)) {
-      throw new Error("OpenAI response does not contain a valid slides array.");
-    }
-    if (!presentation.themeSuggestion) {
-      presentation.themeSuggestion = "modern blue"; // Fallback theme
-    }
+    console.log("Assistant run started with ID:", run.id);
   } catch (error) {
-    console.error("Error generating presentation content:", error.message);
-    throw new Error(`Failed to generate presentation content: ${error.message}`);
+    console.error("Failed to run Assistant:", error.message);
+    throw new Error(`Failed to run Assistant: ${error.message}`);
+  }
+
+  // Poll for the run to complete and retrieve the response
+  let runStatus;
+  let presentation;
+  try {
+    do {
+      runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+      console.log("Run status:", runStatus.status);
+      if (runStatus.status === "completed") {
+        const messages = await openai.beta.threads.messages.list(thread.id);
+        const assistantMessage = messages.data.find(
+          (msg) => msg.role === "assistant"
+        );
+
+        if (!assistantMessage || !assistantMessage.content[0]?.text?.value) {
+          throw new Error("No valid response from Assistant.");
+        }
+
+        let rawContent = assistantMessage.content[0].text.value;
+        console.log("Raw Assistant response:", rawContent);
+
+        // Strip markdown code block if present (e.g., ```json ... ```)
+        rawContent = rawContent
+          .replace(/^```json\s*/, "")
+          .replace(/\s*```$/, "")
+          .trim();
+
+        try {
+          presentation = JSON.parse(rawContent);
+        } catch (parseError) {
+          console.error("Failed to parse Assistant response as JSON:", parseError.message);
+          console.error("Raw content:", rawContent);
+          throw new Error("Invalid response format from Assistant. Expected JSON.");
+        }
+
+        if (!presentation.slides || !Array.isArray(presentation.slides)) {
+          throw new Error("Assistant response does not contain a valid slides array.");
+        }
+
+        break;
+      } else if (runStatus.status === "failed" || runStatus.status === "cancelled") {
+        throw new Error(`Assistant run failed with status: ${runStatus.status}`);
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    } while (runStatus.status === "in_progress" || runStatus.status === "queued");
+  } catch (error) {
+    console.error("Error retrieving Assistant response:", error.message);
+    throw new Error(`Failed to retrieve Assistant response: ${error.message}`);
+  }
+
+  // Save the presentation to the database
+  try {
+    const newPresentation = new Presentation({
+      userId,
+      title: presentation.slides[0]?.title || "Untitled Presentation",
+      slides: presentation.slides,
+      theme,
+    });
+    await newPresentation.save();
+    console.log("Presentation saved to database with ID:", newPresentation._id);
+  } catch (error) {
+    console.error("Failed to save presentation to database:", error.message);
+    throw new Error(`Failed to save presentation to database: ${error.message}`);
   }
 
   return presentation;

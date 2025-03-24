@@ -110,7 +110,7 @@ function App() {
                 user ? (
                   <div className="flex">
 
-                    <PresentationBuilder />
+                    <PresentationBuilder user={user} />
                   </div>
                 ) : (
                   <Navigate to="/login" />
