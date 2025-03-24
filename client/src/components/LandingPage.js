@@ -25,7 +25,7 @@ function LandingPage({ user, handleLogout }) {
   };
 
   return (
-    <div className="relative flex flex-col h-screen bg-[#1a1a1a] text-white overflow-hidden">
+    <div className="relative flex flex-col h-screen bg-gradient-to-r from-[#0f0c29] to-[#24243e] text-white overflow-hidden">
       {/* Header */}
       <header className="sticky top-0 z-20 bg-[#1a1aa] border-b border-gray-700 p-2 px-4 flex justify-between items-center">
         {/* Brand Logo */}
