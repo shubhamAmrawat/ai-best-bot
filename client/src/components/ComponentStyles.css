@@ -22,15 +22,12 @@
 
 /* ComponentStyles.css */
 .internet-response {
-  /* background-color: #2a2a2a; Dark background to differentiate */
-  border-radius: 3px; /* Rounded corners */
-  padding: 1rem; /* Improved padding */
-  /* margin: 0.5rem 0; Vertical spacing */
-
+  border-radius: 3px; 
+  padding: 1rem; 
 }
 
 .search-title {
-  color: #00ccff; /* Bright color for title */
+  color: #00ccff; 
   font-size: 1.2rem;
   margin-bottom: 1rem;
   font-weight: bold;
@@ -44,15 +41,15 @@
 .result-item {
   margin-bottom: 1rem;
   border-bottom: 2px solid rgb(64, 63, 63);
-  padding: 1rem; /* Padding within each result item */
+  padding: 1rem; 
  
   
   border-radius: 4px;
-  backdrop-filter: blur(4px); /* Equivalent to backdrop-blur-sm */
-    background-color: rgba(255, 255, 255, 0.05); /* Equivalent to bg-white/5 */
-    border-radius: 1rem; /* Equivalent to rounded-2xl (16px) */
-    border-bottom: 1px solid rgba(5, 255, 5, 0.5); /* Equivalent to border-gray-700/50 */
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Equivalent to shadow-xl */
+  backdrop-filter: blur(4px); 
+    background-color: rgba(255, 255, 255, 0.05); 
+    border-radius: 1rem; 
+    border-bottom: 1px solid rgba(5, 255, 5, 0.5); 
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); 
 }
 
 .result-heading {
@@ -69,15 +66,15 @@
 }
 
 .result-link {
-  color: #1e90ff; /* Blue color for links */
+  color: #1e90ff; 
   text-decoration: none;
   font-size: 0.9rem;
-  word-break: break-all; /* Prevent long URLs from overflowing */
+  word-break: break-all; 
 }
 
 .result-link:hover {
-  text-decoration: underline; /* Underline on hover for interactivity */
-  color: #00b7eb; /* Slightly lighter blue on hover */
+  text-decoration: underline; 
+  color: #00b7eb; 
 }
 
 /* Assistant response styles */
@@ -90,99 +87,98 @@
 
 /* Main content container */
 .assistant-content {
-  color: #e0e0e0; /* Light gray for readability */
-  font-size: 1rem; /* Base font size */
-  line-height: 1.6; /* Slightly reduced for better readability */
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; /* Modern font stack */
+  color: #e0e0e0;
+  font-size: 1rem;
+  line-height: 1.6;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Paragraph styling */
 .assistant-content p {
-  margin: 0.75rem 0; /* Consistent spacing between paragraphs */
-  padding: 0; /* Remove any padding to avoid conflicts */
+  margin: 0.75rem 0;
+  padding: 0;
 }
 
 /* Remove the border-bottom on first paragraph and border-top on last paragraph */
 .assistant-content > p:first-of-type {
-  border-bottom: none; /* Removed border for cleaner look */
-  padding-bottom: 0; /* Remove padding to match other paragraphs */
+  border-bottom: none;
+  padding-bottom: 0;
   color: #00ccff;
   font-size: 1rem;
 }
 
 .assistant-content > p:last-of-type {
-  border-top: none; /* Removed border for cleaner look */
-  padding-top: 0; /* Remove padding to match other paragraphs */
+  border-top: none;
+  padding-top: 0;
 }
 
 /* Heading styles */
 .assistant-content h3 {
-  color: #b3e5fc; /* Light blue for emphasis */
-  font-size: 1.5rem; /* Reduced size for better hierarchy */
-  font-weight: 600; /* Medium weight for clarity */
-  margin: 1.25rem 0 0.75rem; /* Consistent spacing */
+  color: #b3e5fc;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 1.25rem 0 0.75rem;
 }
 
 .assistant-content h4 {
-  color: #5ce924; /* Bright green for contrast */
-  font-size: 1.25rem; /* Slightly larger than base text */
-  font-weight: 500; /* Medium weight */
-  margin: 1rem 0 0.5rem; /* Consistent spacing */
+  color: #5ce924;
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin: 1rem 0 0.5rem;
 }
 
 /* List styles */
 .assistant-content ul,
 .assistant-content ol {
-  margin: 0.75rem 0; /* Consistent spacing around lists */
-  padding-left: 1.75rem; /* Slightly more padding for better alignment */
-  list-style-type: disc; /* Ensure bullet points for unordered lists */
+  margin: 0.75rem 0; 
+  padding-left: 1.75rem;
+  list-style-type: disc; 
 }
 
 .assistant-content ol {
-  list-style-type: decimal; /* Ensure numbers for ordered lists */
+  list-style-type: decimal; 
 }
 
 .assistant-content li {
-  color: #d0d0d0; /* Slightly darker gray for list items */
-  margin: 0.5rem 0; /* Consistent spacing between list items */
-  line-height: 1.5; /* Match the paragraph line-height for consistency */
+  color: #d0d0d0; 
+  margin: 0.5rem 0; 
+  line-height: 1.5; 
 }
 
 /* Remove the extra margin-bottom on the last list item */
 .assistant-content li:last-child {
-  margin-bottom: 0; /* Remove extra spacing at the end of lists */
+  margin-bottom: 0; 
 }
 
 /* Code block styling (for inline code and blocks) */
 .assistant-content code {
-  background-color: #3a3a3a; /* Slightly lighter background for code */
-  color: #ffcccb; /* Soft pink for code text */
-  font-family: 'Fira Code', 'Consolas', monospace; /* Monospace font for code */
-  font-size: 0.9rem; /* Slightly smaller for code */
-  padding: 0.2rem 0.4rem; /* Padding for inline code */
-  border-radius: 4px; /* Rounded corners for inline code */
+  background-color: #3a3a3a;
+  color: #ffcccb;
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 0.9rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
 }
 
 /* Code block (preformatted text) */
 .assistant-content pre {
-  background-color: #3a3a3a; /* Match inline code background */
-  color: #ffcccb; /* Match inline code color */
-  font-family: 'Fira Code', 'Consolas', monospace; /* Monospace font */
-  font-size: 0.9rem; /* Slightly smaller for code */
-  padding: 1rem; /* Padding for code blocks */
-  border-radius: 6px; /* Rounded corners */
-  overflow-x: auto; /* Horizontal scrolling for long code lines */
-  margin: 0.75rem 0; /* Consistent spacing */
-  white-space: pre-wrap; /* Ensure wrapping for long lines */
+  background-color: #3a3a3a;
+  color: #ffcccb;
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 0.9rem;
+  padding: 1rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+  white-space: pre-wrap;
 }
 
 /* Blockquote styling (for quotes or notes) */
 .assistant-content blockquote {
-  border-left: 4px solid #5ce924; /* Green left border for quotes */
-  padding-left: 1rem; /* Space between border and text */
-  margin: 0.75rem 0; /* Consistent spacing */
-  color: #b0b0b0; /* Slightly muted color for quotes */
-  font-style: italic; /* Italicize quotes for emphasis */
+  border-left: 4px solid #5ce924; 
+  padding-left: 1rem;
+  margin: 0.75rem 0; 
+  color: #b0b0b0;
+  font-style: italic; 
 }
 
 .assistant-content table {
@@ -201,8 +197,6 @@
 .assistant-content th {
   backdrop-filter: blur(4px); 
   background-color: rgba(255, 255, 255, 0.1);
-
-  
   font-weight: 600;
 }
 
@@ -233,8 +227,7 @@
 }
 
 /* New Styles for Chat Window with IDE Open */
-.chat-window-with-ide {
-}
+
 
 /* IDE Pane */
 .ide-pane {
