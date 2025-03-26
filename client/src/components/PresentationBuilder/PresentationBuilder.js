@@ -693,12 +693,18 @@ const PresentationBuilder = ({ user, handleLogout }) => {
                       setActiveTab("preview");
                     }}
                   >
-                    <div className="flex justify-between items-center mb-2">
+                    <div className="flex justify-between items-start mb-2 ">
                       <h3 className="font-medium text-lg group-hover:text-purple-400 transition-colors">
                         {presentation.title}
                       </h3>
-                      <span className="text-sm text-gray-400 bg-gray-800/70 py-1 px-2 rounded-full">
-                        {new Date(presentation.createdAt).toLocaleDateString()}
+                      <span className="text-sm flex items-center justify-center text-gray-400 bg-gray-800/70 py-1 px-2 rounded-full w-[160px]">
+                        {new Date(presentation.createdAt).toLocaleTimeString('en-US', {
+                          month: 'short',
+                          day: '2-digit',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          hour12: true
+                        })}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
