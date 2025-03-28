@@ -65,7 +65,7 @@ async function generatePresentation({ userId, topic, numSlides, outline, theme }
   try {
     do {
       runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
-      console.log("Run status:", runStatus.status);
+      console.log("Presentation Build Status :", runStatus.status);
       if (runStatus.status === "completed") {
         const messages = await openai.beta.threads.messages.list(thread.id);
         const assistantMessage = messages.data.find(

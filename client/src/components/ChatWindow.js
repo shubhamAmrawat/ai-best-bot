@@ -1,7 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 import axios from "axios";
-import { Rocket, Globe, X, Eye, Wrench, Code2Icon } from "lucide-react";
+import {
+  Rocket,
+  Globe,
+  X,
+  Eye,
+  Wrench,
+  Code2Icon,
+  Presentation,
+  Settings,
+} from "lucide-react";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
@@ -9,6 +18,7 @@ import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import StackBlitzSDK from "@stackblitz/sdk";
 import "./ComponentStyles.css";
+import { Link } from "react-router-dom";
 
 // Initialize socket
 const socket = io("http://localhost:5000", {
@@ -34,7 +44,8 @@ function ChatWindow({
   const [isInternetSearchMode, setIsInternetSearchMode] = useState(false);
   const [isToolBuilderMode, setIsToolBuilderMode] = useState(false);
   const [project, setProject] = useState(null);
-  const [isToolBuilderVisible, setIsToolBuilderVisible] = useState(true);
+  const [selectedProjectId, setSelectedProjectId] = useState(null); // Track the selected project
+  const [isToolBuilderVisible, setIsToolBuilderVisible] = useState(false);
   const messagesContainerRef = useRef(null);
   const stackblitzContainerRef = useRef(null);
   const stackblitzVMRef = useRef(null);
@@ -54,20 +65,34 @@ function ChatWindow({
         );
         const chatMessages = res.data.messages || [];
         setMessages(chatMessages);
-        const lastMessageWithProject = chatMessages
-          .slice()
-          .reverse()
-          .find((msg) => msg.project);
-        if (lastMessageWithProject) {
-          setProject(lastMessageWithProject.project);
-          setIsToolBuilderVisible(true);
+
+        // Only set the project if no specific project has been selected
+        if (!selectedProjectId) {
+          const lastMessageWithProject = chatMessages
+            .slice()
+            .reverse()
+            .find((msg) => msg.project);
+          if (lastMessageWithProject) {
+            setProject(lastMessageWithProject.project);
+            setIsToolBuilderVisible(true);
+          } else {
+            setProject(null);
+            setIsToolBuilderVisible(false);
+          }
         }
       } catch (error) {
         console.error("Fetch chat history error:", error.message);
       }
     };
     fetchChatHistory();
-  }, [chatId, isNewChat, user.token]);
+  }, [chatId, isNewChat, user.token, selectedProjectId]);
+
+  // Reset selectedProjectId when chatId changes
+  useEffect(() => {
+    setSelectedProjectId(null);
+    setProject(null);
+    setIsToolBuilderVisible(false);
+  }, [chatId]);
 
   // Socket event listeners
   useEffect(() => {
@@ -139,7 +164,13 @@ function ChatWindow({
           setIsLoading(false);
           return;
         }
-        setProject(project);
+        // Assign a unique ID to the project if it doesn't have one
+        const projectWithId = {
+          ...project,
+          id: project.id || Date.now().toString(), // Use a timestamp as a unique ID if none exists
+        };
+        setProject(projectWithId);
+        setSelectedProjectId(projectWithId.id); // Set the selected project ID
         setIsToolBuilderVisible(true);
         setMessages((prev) => {
           const newMessages = [...prev];
@@ -152,14 +183,14 @@ function ChatWindow({
               role: "assistant",
               content:
                 "I've generated the project for you. You can now edit the code and preview the result in the StackBlitz IDE.",
-              project,
+              project: projectWithId,
             };
           } else {
             newMessages.push({
               role: "assistant",
               content:
                 "I've generated the project for you. You can now edit the code and preview the result in the StackBlitz IDE.",
-              project,
+              project: projectWithId,
             });
           }
           axios
@@ -168,7 +199,7 @@ function ChatWindow({
               {
                 role: "assistant",
                 content: newMessages[newMessages.length - 1].content,
-                project,
+                project: projectWithId,
               },
               { headers: { Authorization: `Bearer ${user.token}` } }
             )
@@ -209,7 +240,7 @@ function ChatWindow({
   }, [chatId, isNewChat, user.token]);
 
   // Embed StackBlitz project
-  const embedStackBlitzProject = () => {
+  const embedStackBlitzProject = async () => {
     if (!project || !isToolBuilderVisible || !stackblitzContainerRef.current) {
       console.log("Cannot embed StackBlitz project: prerequisites not met", {
         project: !!project,
@@ -219,7 +250,6 @@ function ChatWindow({
       return;
     }
 
-    // Check if the container has non-zero dimensions
     const { width, height } =
       stackblitzContainerRef.current.getBoundingClientRect();
     if (width === 0 || height === 0) {
@@ -230,52 +260,58 @@ function ChatWindow({
       return;
     }
 
-    // Clear existing VM and container
+    // Clean up the existing StackBlitz instance
     if (stackblitzVMRef.current) {
+      try {
+        await stackblitzVMRef.current.close(); // Attempt to close the VM if the method exists
+      } catch (error) {
+        console.warn("Error closing StackBlitz VM:", error);
+      }
       stackblitzVMRef.current = null;
     }
-    stackblitzContainerRef.current.innerHTML = "";
+    if (stackblitzContainerRef.current) {
+      stackblitzContainerRef.current.innerHTML = ""; // Clear the container
+    }
 
-    StackBlitzSDK.embedProject(
-      stackblitzContainerRef.current,
-      {
-        title: project.name,
-        description: "Generated by AIBOT",
-        template: "html",
-        files: project.files,
-      },
-      {
-        height: "100%",
-        view: "both",
-        theme: "dark",
-        openFile: "index.html",
-        clickToLoad: false,
-      }
-    )
-      .then((vm) => {
-        stackblitzVMRef.current = vm;
-        console.log("StackBlitz project embedded successfully");
-      })
-      .catch((error) => {
-        console.error("Error embedding StackBlitz project:", error);
-      });
+    // Embed the new project
+    try {
+      const vm = await StackBlitzSDK.embedProject(
+        stackblitzContainerRef.current,
+        {
+          title: project.name,
+          description: "Generated by AIBOT",
+          template: "html",
+          files: project.files,
+        },
+        {
+          height: "100%",
+          view: "both",
+          theme: "dark",
+          openFile: "index.html",
+          clickToLoad: false,
+        }
+      );
+      stackblitzVMRef.current = vm;
+      console.log("StackBlitz project embedded successfully:", project.name);
+    } catch (error) {
+      console.error("Error embedding StackBlitz project:", error);
+    }
   };
 
   // Handle StackBlitz embedding with delay to account for CSS transition
   useEffect(() => {
-    // Clear any existing timeout
     if (embedTimeoutRef.current) {
       clearTimeout(embedTimeoutRef.current);
     }
 
     if (project && isToolBuilderVisible) {
-      // Wait for the CSS transition to complete (300ms) before embedding
       embedTimeoutRef.current = setTimeout(() => {
         embedStackBlitzProject();
-      }, 350); // Slightly longer than the 300ms transition duration
+      }, 350);
     } else {
       // Clean up when the IDE is not visible or there's no project
       if (stackblitzVMRef.current) {
+        stackblitzVMRef.current.close?.(); // Close the VM if the method exists
         stackblitzVMRef.current = null;
       }
       if (stackblitzContainerRef.current) {
@@ -288,7 +324,6 @@ function ChatWindow({
         clearTimeout(embedTimeoutRef.current);
       }
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [project, isToolBuilderVisible]);
 
   // Auto-scroll to the bottom of messages
@@ -385,11 +420,19 @@ function ChatWindow({
     if (isInternetSearchMode) setIsInternetSearchMode(false);
   };
 
-  const closeIDE = () => setIsToolBuilderVisible(false);
+  const closeIDE = () => {
+    setIsToolBuilderVisible(false);
+    setSelectedProjectId(null); // Reset the selected project when closing the IDE
+  };
 
   const reopenIDE = (projectToOpen) => {
     if (projectToOpen) {
-      setProject(projectToOpen);
+      const projectWithId = {
+        ...projectToOpen,
+        id: projectToOpen.id || Date.now().toString(), // Ensure the project has an ID
+      };
+      setProject(projectWithId);
+      setSelectedProjectId(projectWithId.id); // Set the selected project ID
       setIsToolBuilderVisible(true);
     }
   };
@@ -480,9 +523,7 @@ function ChatWindow({
               onClick={() => reopenIDE(message.project)}
               className="mt-2 p-2 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center gap-2 transition-all duration-300"
             >
-            <Eye size={20} />
-            
-            
+              <Eye size={20} />
               Reopen Tool Builder
             </button>
           )}
@@ -513,14 +554,14 @@ function ChatWindow({
 
   const ToolBuilderLoader = () => (
     <div className="tool-builder-loader flex items-center gap-2">
-      <Wrench size={20} className="animate-spin text-purple-500" />
+      <Settings size={20} className="animate-spin text-purple-500" />
       <span className="text-gray-300 text-sm">Building your tool...</span>
     </div>
   );
 
   return (
     <div
-      className={`flex h-screen  transition-all duration-300 ${
+      className={`flex h-screen transition-all duration-300 ${
         isSidebarOpen ? "ml-64" : "ml-16"
       } p-4 flex-1 overflow-hidden`}
     >
@@ -531,7 +572,16 @@ function ChatWindow({
             : "w-[70%] mx-auto "
         }`}
       >
-        <div className="flex justify-end items-center mb-4">
+        <div className="flex justify-between items-center mb-4">
+          <div className="backdrop-blur-sm bg-white/5 shadow-xl p-3 rounded-xl">
+            <Link
+              to={"/presentation-builder"}
+              className="flex items-center justify-center gap-2"
+            >
+              <Presentation className="w-5 h-5 text-blue-400 " />
+              <span>Presentation Builder</span>
+            </Link>
+          </div>
           <div className="flex items-center gap-2">
             <span className="text-white font-bold text-[22px]">
               {user.username.charAt(0).toUpperCase() + user.username.slice(1)}
@@ -555,7 +605,7 @@ function ChatWindow({
             messages.map((msg, index) => (
               <div
                 key={index}
-                className={`backdrop-blur-sm bg-white/5   shadow-xl  p-3 rounded-lg w-fit transition-all duration-200 ${
+                className={`backdrop-blur-sm bg-white/5 shadow-xl p-3 rounded-lg w-fit transition-all duration-200 ${
                   msg.role === "user"
                     ? "border-b border-blue-500 px-4 text-white ml-auto"
                     : msg.role === "internet"
@@ -592,14 +642,14 @@ function ChatWindow({
           )}
         </div>
 
-        <div className="flex flex-col  gap-2 items-start mt-4 border-gray-700 border rounded-[15px] p-2 px-5">
+        <div className="flex flex-col gap-2 items-start mt-4 border-gray-700 border rounded-[15px] p-2 px-5">
           <div className="flex items-center gap-2">
             <button
               onClick={toggleSearchMode}
-              className={`p-2 px-4 w-[120px] rounded-full flex items-center gap-2  transition ${
+              className={`p-2 px-4 w-[120px] rounded-full flex items-center gap-2 transition ${
                 isInternetSearchMode
                   ? "bg-gradient-to-r from-green-400 to-teal-500 text-white shadow-md hover:shadow-lg animate-pulse"
-                  : "backdrop-blur-sm  rounded-2xl border border-gray-700/50 shadow-xl text-white hover:bg-white/5 "
+                  : "backdrop-blur-sm rounded-2xl border border-gray-700/50 shadow-xl text-white hover:bg-white/5 "
               }`}
               title={
                 isInternetSearchMode
@@ -612,10 +662,10 @@ function ChatWindow({
             </button>
             <button
               onClick={toggleToolBuilderMode}
-              className={`p-2 rounded-full px-4 w-[120px] flex items-center gap-2  transition ${
+              className={`p-2 rounded-full px-4 w-[120px] flex items-center gap-2 transition ${
                 isToolBuilderMode
                   ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md hover:shadow-lg animate-pulse"
-                  : "backdrop-blur-sm  rounded-2xl border border-gray-700/50 shadow-xl text-white hover:bg-white/5 "
+                  : "backdrop-blur-sm rounded-2xl border border-gray-700/50 shadow-xl text-white hover:bg-white/5 "
               }`}
               title={
                 isToolBuilderMode
@@ -628,7 +678,7 @@ function ChatWindow({
             </button>
           </div>
 
-          <div className="flex  w-[100%]">
+          <div className="flex w-[100%]">
             <input
               type="text"
               className="flex-1 bg-transparent text-white outline-none px-3 py-2"
@@ -649,7 +699,7 @@ function ChatWindow({
               className={`p-2 rounded-full transition ${
                 isLoading
                   ? "bg-gray-500 opacity-50 cursor-not-allowed"
-                  : "bg-gradient-to-r from-red-500 to-purple-500 hover:bg-white"
+                  : "bg-gradient-to-r from-blue-500 to-purple-600 hover:bg-white"
               }`}
               disabled={isLoading}
             >
@@ -667,9 +717,7 @@ function ChatWindow({
         }`}
       >
         <div className="flex justify-between items-center mb-4 px-4">
-          <h2 className="text-xl font-bold text-white">
-            Tool Builder (Powered by StackBlitz)
-          </h2>
+          <h2 className="text-xl font-bold text-white">Tool Builder</h2>
           {project && (
             <button
               onClick={closeIDE}
