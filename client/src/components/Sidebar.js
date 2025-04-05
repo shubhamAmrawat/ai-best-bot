@@ -23,7 +23,8 @@ function Sidebar({
   const [chatToDelete, setChatToDelete] = useState(null);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const navigate = useNavigate();
-
+  const themeClr = "bg-[#DA0037]";
+  const hoverClr = "hover:bg-[#f6265a]";
   useEffect(() => {
     fetchChats();
   }, [currentChatId]);
@@ -140,8 +141,7 @@ function Sidebar({
       >
         <div className="relative group">
           <button
-            className="p-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-600  
-            hover:from-blue-700 hover:to-purple-600 transition-all duration-300 ease-in-out transform hover:scale-105"
+            className={`p-2 rounded-full  transition-all duration-300 ease-in-out `}
             onClick={toggleSidebar}
           >
             {isSidebarOpen ? (
@@ -159,7 +159,7 @@ function Sidebar({
 
         <div className="relative group">
           <button
-            className={`p-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-700 hover:to-purple-600 transition-all duration-300 ease-in-out transform hover:scale-105 ${
+            className={`p-2 rounded-full  transition-all duration-300 ease-in-out  ${
               isSidebarOpen ? "w-10 h-10 mt-0" : "w-10 h-10 mt-2"
             }`}
             onClick={goToLandingPage}
@@ -177,7 +177,7 @@ function Sidebar({
       {/* New Chat Button */}
       <div className="relative group">
         <button
-          className={`mt-4 flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-700 hover:to-purple-600 font-bold py-2 px-4 transition-all duration-300 ease-in-out transform hover:scale-105 ${
+          className={`mt-4 flex items-center justify-center gap-2 bg-[#DA0037]  font-bold py-2 px-4 transition-all duration-300 ease-in-out transform hover:bg-[#f6265a] ${
             isSidebarOpen
               ? "w-full rounded-lg"
               : "w-10 h-10 flex-col justify-center items-center self-center rounded-[50px]"
@@ -214,8 +214,8 @@ function Sidebar({
               key={chat._id}
               className={`p-3 rounded-lg cursor-pointer transition-all duration-300 ease-in-out flex items-center justify-between ${
                 currentChatId === chat._id
-                  ? "backdrop-blur-sm bg-white/5 rounded-2xl border border-gray-700/50 shadow-xl  text-white"
-                  : "hover:bg-white/5 text-gray-300"
+                  ? "backdrop-blur-sm bg-[#141414]  rounded-2xl    text-white"
+                  : "hover:bg-[#171717] text-gray-300"
               }`}
             >
               <span onClick={() => selectChat(chat._id)} className="flex-1">
@@ -287,7 +287,7 @@ function Sidebar({
       {/* Logout Button */}
       <div className="relative group">
         <button
-          className={`mt-auto flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600  hover:from-blue-700 hover:to-purple-600 font-bold py-2 px-4 transition-all duration-300 ease-in-out transform hover:scale-105 ${
+          className={`mt-auto flex items-center justify-center gap-2 bg-[#DA0037] hover:bg-[#f6265a] font-bold py-2 px-4 transition-all duration-300 ease-in-out  ${
             isSidebarOpen
               ? "w-full rounded-lg"
               : "w-10 h-10 flex-col justify-center items-center self-center rounded-[50px]"

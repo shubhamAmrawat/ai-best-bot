@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import PresentationPreview from "./PresentationPreview";
-import { LogOut, MoveLeftIcon } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { ChartAreaIcon, LogOut, MessageCircle, MessageCircleCodeIcon, MoveLeftIcon } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import PptxGenJS from "pptxgenjs"; // Import pptxgenjs
+import { motion } from "framer-motion"; // For animations
 
 const PresentationBuilder = ({ user, handleLogout }) => {
   const avatarLetter = user.username.charAt(0).toUpperCase();
@@ -18,6 +19,16 @@ const PresentationBuilder = ({ user, handleLogout }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [pastPresentations, setPastPresentations] = useState([]); // Still needed for rendering
   const navigate = useNavigate();
+   const [isIntialLoading, setIsIntialLoading] = useState(true);
+
+   // loading delay
+   useEffect(() => {
+     const timer = setTimeout(() => {
+       setIsIntialLoading(false);
+     }, 1000);
+
+     return () => clearTimeout(timer);
+   }, []);
 
   // Define available themes (with PPT-compatible colors)
   const themeStyles = {
@@ -293,10 +304,64 @@ const PresentationBuilder = ({ user, handleLogout }) => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-slate-900 via-indigo-950 to-black text-white overflow-auto">
+    <div className="min-h-screen w-full bg-[#0c0c0c] text-white overflow-auto">
+      {/* Loader */}
+      {isIntialLoading && (
+        <motion.div
+          initial={{ opacity: 1 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5 }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#0c0c0c]"
+        >
+          <div className="flex flex-col items-center gap-6">
+            {/* Enhanced Animated Loader */}
+            <motion.div
+              animate={{
+                rotate: 360,
+              }}
+              transition={{
+                repeat: Infinity,
+                duration: 1.5,
+                ease: "linear",
+              }}
+              className="relative w-16 h-16"
+            >
+              <div className="absolute inset-0 w-full h-full rounded-full border-4 border-transparent border-t-purple-500 animate-spin" />
+              <div className="absolute inset-0 w-full h-full rounded-full border-4 border-transparent border-b-blue-400 animate-spin-reverse" />
+              <div className="absolute inset-0 w-full h-full rounded-full border-4 border-transparent border-l-pink-500 animate-spin-slow" />
+            </motion.div>
+
+            {/* Pulsating Text */}
+            <motion.p
+              animate={{ opacity: [0.4, 1, 0.4] }}
+              transition={{
+                repeat: Infinity,
+                duration: 1.2,
+                ease: "easeInOut",
+              }}
+              className="text-lg font-semibold text-purple-300 drop-shadow-md"
+            >
+              Loading{" "}
+              <span className="text-purple-400 font-bold">PPTBuilder</span>
+              ...
+            </motion.p>
+          </div>
+        </motion.div>
+      )}
       {/* Header and User Profile */}
       <div className="container mx-auto px-4 py-6">
-        <div className="flex justify-end items-center">
+        <div className="flex justify-between items-center">
+          <div className="bg-[#141414] hover:bg-[#171717] border border-gray-700 rounded-[25px] py-2 px-4 cursor-pointer">
+            <Link
+              className="flex items-center justify-center gap-2 font-semibold "
+              to={"/chatbot"}
+            >
+              <MessageCircleCodeIcon color="#84C69B" size={20} />
+
+              <span>Chat Assistant</span>
+            </Link>
+          </div>
           <div className="relative">
             <div
               className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl cursor-pointer"
@@ -393,13 +458,13 @@ const PresentationBuilder = ({ user, handleLogout }) => {
               <h1 className="text-4xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
                 Create AI-Powered Presentations
               </h1>
-              <p className="text-gray-300 max-w-2xl mx-auto">
+              <p className="text-gray-300 max-w-2xl mx-auto italic">
                 Transform your ideas into professional slides in seconds with
                 our AI presentation generator.
               </p>
             </div>
 
-            <div className="backdrop-blur-sm bg-white/5 rounded-2xl border border-gray-700/50 shadow-xl p-8">
+            <div className="backdrop-blur-sm bg-[#121212] rounded-2xl border border-gray-700/50 shadow-xl p-8">
               <div className="space-y-6">
                 <div>
                   <label
@@ -414,7 +479,7 @@ const PresentationBuilder = ({ user, handleLogout }) => {
                       placeholder="Enter your presentation topic"
                       value={topic}
                       onChange={(e) => setTopic(e.target.value)}
-                      className="w-full bg-gray-900/80 text-white p-4 pl-10 rounded-xl border border-gray-700/50 outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all duration-200 placeholder-gray-500"
+                      className="w-full bg-transparent text-white p-4 pl-10 rounded-xl border border-gray-700/50 outline-none focus:ring-1 focus:ring-purple-500/50 focus:border-purple-500/20 transition-all duration-200 placeholder-gray-500"
                     />
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <svg
@@ -443,7 +508,7 @@ const PresentationBuilder = ({ user, handleLogout }) => {
                       value={additionalInfo}
                       onChange={(e) => setAdditionalInfo(e.target.value)}
                       rows={4}
-                      className="w-full bg-gray-900/80 text-white p-4 pl-10 rounded-xl border border-gray-700/50 outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all duration-200 placeholder-gray-500"
+                      className="w-full bg-transparent text-white p-4 pl-10 rounded-xl border border-gray-700/50 outline-none focus:ring-1 focus:ring-purple-500/50 focus:border-purple-500/20 transition-all duration-200 placeholder-gray-500"
                     ></textarea>
                     <div className="absolute top-4 left-0 pl-3 flex items-start pointer-events-none">
                       <svg
@@ -469,7 +534,7 @@ const PresentationBuilder = ({ user, handleLogout }) => {
                     id="theme"
                     value={theme}
                     onChange={(e) => setTheme(e.target.value)}
-                    className="w-full bg-gray-900/80 text-white p-4 rounded-xl border border-gray-700/50 outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all duration-200"
+                    className="w-full bg-[#121212] text-white p-4 rounded-xl border border-gray-700/50 outline-none   transition-all duration-200"
                   >
                     {Object.keys(themeStyles).map((themeKey) => (
                       <option key={themeKey} value={themeKey}>
@@ -698,13 +763,16 @@ const PresentationBuilder = ({ user, handleLogout }) => {
                         {presentation.title}
                       </h3>
                       <span className="text-sm flex items-center justify-center text-gray-400 bg-gray-800/70 py-1 px-2 rounded-full w-[160px]">
-                        {new Date(presentation.createdAt).toLocaleTimeString('en-US', {
-                          month: 'short',
-                          day: '2-digit',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                          hour12: true
-                        })}
+                        {new Date(presentation.createdAt).toLocaleTimeString(
+                          "en-US",
+                          {
+                            month: "short",
+                            day: "2-digit",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
+                          }
+                        )}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
@@ -731,7 +799,7 @@ const PresentationBuilder = ({ user, handleLogout }) => {
               </div>
             ) : (
               <div
-                className="backdrop-blur-sm bg-white/5 rounded-xl border border-gray-700/50 p-8 text-center"
+                className="bg-[#121212] rounded-xl border border-gray-700/50 p-8 text-center"
                 onClick={() => setActiveTab("create")}
               >
                 <svg

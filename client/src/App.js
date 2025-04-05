@@ -58,7 +58,7 @@ function App() {
   return (
     <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
       <Router>
-        <div className="h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-black text-white">
+        <div className="h-screen bg-[#0c0c0c] text-white">
           <Routes>
             <Route
               path="/login"

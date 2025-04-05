@@ -27,7 +27,8 @@
 }
 
 .search-title {
-  color: #00ccff; 
+  color: rgb(255, 255, 255); 
+  text-align: center;
   font-size: 1.2rem;
   margin-bottom: 1rem;
   font-weight: bold;
@@ -42,11 +43,10 @@
   margin-bottom: 1rem;
   border-bottom: 2px solid rgb(64, 63, 63);
   padding: 1rem; 
- 
   
   border-radius: 4px;
   backdrop-filter: blur(4px); 
-    background-color: rgba(255, 255, 255, 0.05); 
+    background-color: #161616; 
     border-radius: 1rem; 
     border-bottom: 1px solid rgba(5, 255, 5, 0.5); 
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); 
@@ -66,7 +66,7 @@
 }
 
 .result-link {
-  color: #1e90ff; 
+  color: #1785f4; 
   text-decoration: none;
   font-size: 0.9rem;
   word-break: break-all; 

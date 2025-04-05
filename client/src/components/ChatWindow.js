@@ -19,6 +19,7 @@ import { CopyToClipboard } from "react-copy-to-clipboard";
 import StackBlitzSDK from "@stackblitz/sdk";
 import "./ComponentStyles.css";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion"; // For animations
 
 // Initialize socket
 const socket = io("http://localhost:5000", {
@@ -51,7 +52,19 @@ function ChatWindow({
   const stackblitzVMRef = useRef(null);
   const embedTimeoutRef = useRef(null);
   const avatarLetter = user.username.charAt(0).toUpperCase();
+  const themeClr = "bg-[#DA0037]";
+  const hoverClr = "hover:bg-[#f6265a]";
+  const [isIntialLoading, setIsIntialLoading] = useState(true); // State to control the loader
 
+   // loading delay 
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setIsIntialLoading(false);
+      }, 1000); 
+  
+      return () => clearTimeout(timer); 
+    }, []);
+  
   // Fetch chat history
   useEffect(() => {
     const fetchChatHistory = async () => {
@@ -565,6 +578,49 @@ function ChatWindow({
         isSidebarOpen ? "ml-64" : "ml-16"
       } p-4 flex-1 overflow-hidden`}
     >
+      {/* Loader */}
+      {isIntialLoading && (
+        <motion.div
+          initial={{ opacity: 1 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5 }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#0c0c0c]"
+        >
+          <div className="flex flex-col items-center gap-6">
+            {/* Enhanced Animated Loader */}
+            <motion.div
+              animate={{
+                rotate: 360,
+              }}
+              transition={{
+                repeat: Infinity,
+                duration: 1.5,
+                ease: "linear",
+              }}
+              className="relative w-16 h-16"
+            >
+              <div className="absolute inset-0 w-full h-full rounded-full border-4 border-transparent border-t-purple-500 animate-spin" />
+              <div className="absolute inset-0 w-full h-full rounded-full border-4 border-transparent border-b-blue-400 animate-spin-reverse" />
+              <div className="absolute inset-0 w-full h-full rounded-full border-4 border-transparent border-l-pink-500 animate-spin-slow" />
+            </motion.div>
+
+            {/* Pulsating Text */}
+            <motion.p
+              animate={{ opacity: [0.4, 1, 0.4] }}
+              transition={{
+                repeat: Infinity,
+                duration: 1.2,
+                ease: "easeInOut",
+              }}
+              className="text-lg font-semibold text-purple-300 drop-shadow-md"
+            >
+              Loading <span className="text-purple-400 font-bold">ChatAssistant</span>
+              ...
+            </motion.p>
+          </div>
+        </motion.div>
+      )}
       <div
         className={`flex flex-col transition-all duration-300 ease-in-out ${
           project && isToolBuilderVisible
@@ -573,7 +629,7 @@ function ChatWindow({
         }`}
       >
         <div className="flex justify-between items-center mb-4">
-          <div className="backdrop-blur-sm bg-white/5 shadow-xl p-3 rounded-xl">
+          <div className="backdrop-blur-sm bg-[#121212] hover:bg-[#181818] border border-gray-800 rounded-[25px] transition-all duration-100 p-3 px-4 cursor-pointer ">
             <Link
               to={"/presentation-builder"}
               className="flex items-center justify-center gap-2"
@@ -586,7 +642,7 @@ function ChatWindow({
             <span className="text-white font-bold text-[22px]">
               {user.username.charAt(0).toUpperCase() + user.username.slice(1)}
             </span>
-            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl">
+            <div className={`w-10 h-10 rounded-full ${themeClr} flex items-center justify-center text-white font-bold text-xl`}>
               {avatarLetter}
             </div>
           </div>
@@ -605,7 +661,7 @@ function ChatWindow({
             messages.map((msg, index) => (
               <div
                 key={index}
-                className={`backdrop-blur-sm bg-white/5 shadow-xl p-3 rounded-lg w-fit transition-all duration-200 ${
+                className={`backdrop-blur-sm bg-[#121212] shadow-md p-3 rounded-lg w-fit transition-all duration-200 ${
                   msg.role === "user"
                     ? "border-b border-blue-500 px-4 text-white ml-auto"
                     : msg.role === "internet"
@@ -649,7 +705,7 @@ function ChatWindow({
               className={`p-2 px-4 w-[120px] rounded-full flex items-center gap-2 transition ${
                 isInternetSearchMode
                   ? "bg-gradient-to-r from-green-400 to-teal-500 text-white shadow-md hover:shadow-lg animate-pulse"
-                  : "backdrop-blur-sm rounded-2xl border border-gray-700/50 shadow-xl text-white hover:bg-white/5 "
+                  : "backdrop-blur-sm rounded-2xl border border-gray-700/50  text-white hover:bg-white/5 "
               }`}
               title={
                 isInternetSearchMode
@@ -665,7 +721,7 @@ function ChatWindow({
               className={`p-2 rounded-full px-4 w-[120px] flex items-center gap-2 transition ${
                 isToolBuilderMode
                   ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md hover:shadow-lg animate-pulse"
-                  : "backdrop-blur-sm rounded-2xl border border-gray-700/50 shadow-xl text-white hover:bg-white/5 "
+                  : "backdrop-blur-sm rounded-2xl border border-gray-700/50  text-white hover:bg-white/5 "
               }`}
               title={
                 isToolBuilderMode
@@ -699,7 +755,7 @@ function ChatWindow({
               className={`p-2 rounded-full transition ${
                 isLoading
                   ? "bg-gray-500 opacity-50 cursor-not-allowed"
-                  : "bg-gradient-to-r from-blue-500 to-purple-600 hover:bg-white"
+                  : "bg-gradient-to-r from-red-600 to-gray-400 hover:bg-white"
               }`}
               disabled={isLoading}
             >

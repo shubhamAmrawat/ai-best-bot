@@ -73,29 +73,9 @@ function Signup({ onLogin }) {
   };
 
   return (
-    <div className="relative flex items-center justify-center h-screen w-screen bg-[#1e1e1e] overflow-hidden">
-      <svg className="absolute top-10 left-10 w-1/4 opacity-20" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="30" y="40" width="40" height="40" rx="5" fill="url(#gradient)" />
-        <path d="M40 40V30C40 20 50 20 50 20C50 20 60 20 60 30V40" stroke="url(#gradient)" strokeWidth="10" strokeLinecap="round" />
-        <defs>
-          <linearGradient id="gradient" x1="0" y1="0" x2="100" y2="100">
-            <stop offset="0%" stopColor="#ef4444" />
-            <stop offset="100%" stopColor="#a855f7" />
-          </linearGradient>
-        </defs>
-      </svg>
-      <svg className="absolute bottom-10 right-10 w-1/3 opacity-20" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="20" y="10" width="60" height="80" rx="5" fill="url(#gradient2)" />
-        <circle cx="70" cy="50" r="5" fill="#1e1e1e" />
-        <path d="M50 10V90" stroke="#1e1e1e" strokeWidth="2" strokeDasharray="4" />
-        <defs>
-          <linearGradient id="gradient2" x1="20" y1="10" x2="80" y2="90">
-            <stop offset="0%" stopColor="#a855f7" />
-            <stop offset="100%" stopColor="#ef4444" />
-          </linearGradient>
-        </defs>
-      </svg>
-      <div className="relative bg-[#323232] p-8 rounded-xl shadow-2xl w-96 z-10 border border-gray-500">
+    <div className="relative flex items-center justify-center h-screen w-screen bg-[#0c0c0c] overflow-hidden">
+      
+      <div className="relative bg-[#121212] p-8 rounded-xl shadow-2xl w-96 z-10 border border-gray-500">
         <form onSubmit={handleSignup}>
           <h2 className="text-3xl text-white font-bold mb-6 text-center">Sign Up</h2>
           {errors.form && <p className="text-red-500 mb-4 text-center">{errors.form}</p>}
@@ -105,7 +85,7 @@ function Signup({ onLogin }) {
               placeholder="Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full p-3 bg-[#1e1e1e] text-white rounded-lg outline-none border border-gray-500 focus:border-blue-500 transition"
+              className="w-full p-3 bg-transparent text-white rounded-lg outline-none border border-gray-500 focus:border-blue-500 transition"
             />
             {errors.username && <p className="text-red-500 text-sm mt-1">{errors.username}</p>}
           </div>
@@ -115,12 +95,12 @@ function Signup({ onLogin }) {
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-3 bg-[#1e1e1e] text-white rounded-lg outline-none border border-gray-500 focus:border-blue-500 transition"
+              className="w-full p-3 bg-transparent text-white rounded-lg outline-none border border-gray-500 focus:border-blue-500 transition"
             />
             {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
           </div>
           <div className="mb-4">
-            <div className="pe-2 flex items-center bg-[#1e1e1e] rounded-lg outline-none border border-gray-500 transition">
+            <div className="pe-2 flex items-center bg-transparent rounded-lg outline-none border border-gray-500 transition">
               <input
                 type={visiblePassword ? "text" : "password"}
                 placeholder="Password"
@@ -135,7 +115,7 @@ function Signup({ onLogin }) {
             {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
           </div>
           <div className="mb-6">
-            <div className="pe-2 flex items-center bg-[#1e1e1e] rounded-lg outline-none border border-gray-500 transition">
+            <div className="pe-2 flex items-center bg-transparent rounded-lg outline-none border border-gray-500 transition">
               <input
                 type={visibleConfirmPassword ? "text" : "password"}
                 placeholder="Confirm Password"
