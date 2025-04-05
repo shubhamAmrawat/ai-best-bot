@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import PresentationPreview from "./PresentationPreview";
-import { ChartAreaIcon, LogOut, MessageCircle, MessageCircleCodeIcon, MoveLeftIcon } from "lucide-react";
+import {  LogOut, MessageCircleCodeIcon, MoveLeftIcon } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import PptxGenJS from "pptxgenjs"; // Import pptxgenjs
 import { motion } from "framer-motion"; // For animations

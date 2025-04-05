@@ -6,7 +6,6 @@ import {
   Globe,
   X,
   Eye,
-  Wrench,
   Code2Icon,
   Presentation,
   Settings,
@@ -53,13 +52,13 @@ function ChatWindow({
   const embedTimeoutRef = useRef(null);
   const avatarLetter = user.username.charAt(0).toUpperCase();
   const themeClr = "bg-[#DA0037]";
-  const hoverClr = "hover:bg-[#f6265a]";
-  const [isIntialLoading, setIsIntialLoading] = useState(true); // State to control the loader
+
+  const [isInitialLoading, setIsInitialLoading] = useState(true); // State to control the loader
 
    // loading delay 
     useEffect(() => {
       const timer = setTimeout(() => {
-        setIsIntialLoading(false);
+        setIsInitialLoading(false);
       }, 1000); 
   
       return () => clearTimeout(timer); 
@@ -579,7 +578,7 @@ function ChatWindow({
       } p-4 flex-1 overflow-hidden`}
     >
       {/* Loader */}
-      {isIntialLoading && (
+      {isInitialLoading && (
         <motion.div
           initial={{ opacity: 1 }}
           animate={{ opacity: 1 }}

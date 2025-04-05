@@ -4,7 +4,6 @@ import {
   BrainCircuitIcon,
   LogOut,
   MessageCircle,
-  MessageCircleIcon,
   Presentation,
   User,
 } from "lucide-react";

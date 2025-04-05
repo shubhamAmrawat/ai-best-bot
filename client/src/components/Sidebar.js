@@ -23,8 +23,8 @@ function Sidebar({
   const [chatToDelete, setChatToDelete] = useState(null);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const navigate = useNavigate();
-  const themeClr = "bg-[#DA0037]";
-  const hoverClr = "hover:bg-[#f6265a]";
+  // const themeClr = "bg-[#DA0037]";
+  // const hoverClr = "hover:bg-[#f6265a]";
   useEffect(() => {
     fetchChats();
   }, [currentChatId]);
