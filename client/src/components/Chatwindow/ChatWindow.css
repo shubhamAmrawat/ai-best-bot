@@ -98,11 +98,14 @@
   padding: 0;
 }
 
-/* Remove the border-bottom on first paragraph and border-top on last paragraph */
-.assistant-content > p:first-of-type {
+.assistant-content > p:only-of-type {
+  color: white; /* For single <p> */
+}
+
+.assistant-content > p:first-of-type:not(:only-of-type) {
   border-bottom: none;
   padding-bottom: 0;
-  color: #00ccff;
+  color: #00ccff; /* For multiple <p> */
   font-size: 1rem;
 }
 

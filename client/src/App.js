@@ -10,6 +10,7 @@ import PresentationBuilder from "./components/PresentationBuilder/PresentationBu
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import ChatWindow from "./components/Chatwindow/ChatWindow";
 
+
 function App() {
   const [user, setUser] = useState(() => {
     const token = localStorage.getItem("token");
@@ -57,72 +58,74 @@ function App() {
   };
 
   return (
-    <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
-      <Router>
-        <div className="h-screen bg-[#0c0c0c] text-white">
-          <Routes>
-            <Route
-              path="/login"
-              element={user ? <Navigate to="/" /> : <Login onLogin={handleLogin} />}
-            />
-            <Route
-              path="/signup"
-              element={user ? <Navigate to="/" /> : <Signup onLogin={handleLogin} />}
-            />
-            <Route
-              path="/"
-              element={
-                user ? (
-                  <LandingPage user={user} handleLogout={handleLogout} />
-                ) : (
-                  <Navigate to="/login" />
-                )
-              }
-            />
-            <Route
-              path="/chatbot"
-              element={
-                user ? (
-                  <div className="flex">
-                    <Sidebar
-                      user={user}
-                      isSidebarOpen={isSidebarOpen}
-                      setIsSidebarOpen={setIsSidebarOpen}
-                      setCurrentChatId={setCurrentChatId}
-                      currentChatId={currentChatId}
-                      handleLogout={handleLogout}
-                    />
-                    <ChatWindow
-                      chatId={currentChatId}
-                      setCurrentChatId={setCurrentChatId}
-                      isSidebarOpen={isSidebarOpen}
-                      setIsSidebarOpen={setIsSidebarOpen} // Added the missing prop
-                      user={user}
-                    />
-                  </div>
-                ) : (
-                  <Navigate to="/login" />
-                )
-              }
-            />
-            <Route
-              path="/presentation-builder"
-              element={
-                user ? (
-                  <div className="flex">
+    
+      <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
+        <Router>
+          <div className="h-screen bg-[#101010] text-white">
+            <Routes>
+              <Route
+                path="/login"
+                element={user ? <Navigate to="/" /> : <Login onLogin={handleLogin} />}
+              />
+              <Route
+                path="/signup"
+                element={user ? <Navigate to="/" /> : <Signup onLogin={handleLogin} />}
+              />
+              <Route
+                path="/"
+                element={
+                  user ? (
+                    <LandingPage user={user} handleLogout={handleLogout} />
+                  ) : (
+                    <Navigate to="/login" />
+                  )
+                }
+              />
+              <Route
+                path="/chatbot"
+                element={
+                  user ? (
+                    <div className="flex">
+                      <Sidebar
+                        user={user}
+                        isSidebarOpen={isSidebarOpen}
+                        setIsSidebarOpen={setIsSidebarOpen}
+                        setCurrentChatId={setCurrentChatId}
+                        currentChatId={currentChatId}
+                        handleLogout={handleLogout}
+                      />
+                      <ChatWindow
+                        chatId={currentChatId}
+                        setCurrentChatId={setCurrentChatId}
+                        isSidebarOpen={isSidebarOpen}
+                        setIsSidebarOpen={setIsSidebarOpen} // Added the missing prop
+                        user={user}
+                      />
+                    </div>
+                  ) : (
+                    <Navigate to="/login" />
+                  )
+                }
+              />
+              <Route
+                path="/presentation-builder"
+                element={
+                  user ? (
+                    <div className="flex">
 
-                    <PresentationBuilder user={user} handleLogout={handleLogout} />
-                  </div>
-                ) : (
-                  <Navigate to="/login" />
-                )
-              }
-            />
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
-        </div>
-      </Router>
-    </GoogleOAuthProvider>
+                      <PresentationBuilder user={user} handleLogout={handleLogout} />
+                    </div>
+                  ) : (
+                    <Navigate to="/login" />
+                  )
+                }
+              />
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
+          </div>
+        </Router>
+      </GoogleOAuthProvider>
+ 
   );
 }
 
