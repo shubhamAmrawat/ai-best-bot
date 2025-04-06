@@ -1,0 +1,15 @@
+.s-bg-class{
+  background-image: url("C:\Users\Shubhzx\Desktop\ai-chatbot\client\public\signup.png");
+  background-size: cover; /* Prevents cropping or stretching */
+  background-repeat: no-repeat;
+  
+  background-position: center;
+  background-color: #0c0c0c; /* Fallback bg */
+}
+.s-bg-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4); /* Dark overlay */
+  z-index: 0;
+}

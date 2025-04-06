@@ -3,7 +3,7 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Rocket } from "lucide-react"; // Added Rocket
 import { GoogleLogin } from "@react-oauth/google"; // Import Google Login component
-
+import './Login.css'
 function Login({ onLogin }) {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
@@ -55,7 +55,7 @@ function Login({ onLogin }) {
   };
 
   return (
-    <div className="relative flex items-center justify-center h-screen w-screen bg-[#0c0c0c] overflow-hidden">
+    <div className="relative flex items-center justify-center h-screen w-screen bg-[#0c0c0c] overflow-hidden bg-class bg-overlay">
      
 
       <form onSubmit={handleLogin} className="relative bg-[#121212] p-8 rounded-xl shadow-2xl w-96 z-10 border border-gray-500">
@@ -88,7 +88,7 @@ function Login({ onLogin }) {
         </div>
         <button
           type="submit"
-          className="w-full p-3 bg-gradient-to-r from-red-500 to-purple-500 hover:from-red-600 hover:to-purple-600 text-white font-bold rounded-lg flex items-center justify-center gap-2 transition mb-4"
+          className="w-full p-3 bg-gradient-to-r from-green-500 to-purple-300 hover:from-green-600 hover:to-purple-400 text-white font-bold rounded-lg flex items-center justify-center gap-2 transition mb-4"
         >
           <Rocket size={20} />
           Login

@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion"; // For animations
 
-import "./LandingPage.css";
 
 function LandingPage({ user, handleLogout }) {
   const navigate = useNavigate();

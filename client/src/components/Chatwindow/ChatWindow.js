@@ -16,7 +16,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import StackBlitzSDK from "@stackblitz/sdk";
-import "./ComponentStyles.css";
+import "./ChatWindow.css";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion"; // For animations
 
